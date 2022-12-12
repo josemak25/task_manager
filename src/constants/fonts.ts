@@ -25,8 +25,11 @@ const weight: FontWeightType = {
 };
 
 const variants = {
-  default: "manrope-medium",
-  bold: "manrope-bold",
+  thin: "roboto-thin",
+  bold: "roboto-bold",
+  light: "roboto-light",
+  medium: "roboto-medium",
+  regular: "roboto-regular",
 };
 
 export default {
