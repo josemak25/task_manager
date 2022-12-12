@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from "react";
-import { Provider as PaperProvider } from "react-native-paper";
 
+import { PaperProvider } from "./PaperProvider";
 import { StoreProvider } from "./StoreProvider";
 import { SafeAreaProvider } from "./SafeAreaProvider";
 import { StatusBarProvider } from "./StatusBarProvider";
