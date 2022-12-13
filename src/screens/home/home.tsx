@@ -32,6 +32,8 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({}) => {
               <Badge style={styles.badge}>365</Badge>
             </View>
 
+            <View style={styles.vertical}></View>
+
             <View style={styles.list}>
               <Text style={styles.listItem}>Open</Text>
               <Badge style={styles.badge}>35</Badge>
@@ -122,8 +124,15 @@ const useStyles = makeUseStyles(({isDarkMode, palette,layout, fonts, edgeInsets 
 
 
   badge:{
+    marginLeft: 7,
     alignItems: 'center',
     justifyContent: 'center',
     color: palette.lightText,
+  },
+
+  vertical:{
+    width: 1,
+    height: '100%',
+    backgroundColor: palette.hairlineColor
   },
 }));
