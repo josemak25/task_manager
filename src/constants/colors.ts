@@ -11,6 +11,9 @@ export default {
     listBackground: "#D4D4D7",
     transparent: "rgba(255,255,255,0)",
     red: "#BF0000",
+    homeBackground: "#f9f9f9",
+    addNew: '#e2ebfa',
+    lightgrey: '#dadce2'
   },
   dark: {
     text: "#fff",
@@ -24,5 +27,8 @@ export default {
     listBackground: "#1D1D1F",
     transparent: "rgba(0,0,0,0)",
     red: "#BF0000",
+    homeBackground: "#545c62",
+    addNew: '#165edc',
+    lightgrey: '#cbcbcb'
   },
 };
