@@ -3,7 +3,7 @@ import { View, ViewProps } from "react-native";
 
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 
-export const Hr: React.FC<ViewProps> = props => {
+export const Hr: React.FC<ViewProps> = (props) => {
   const { styles } = useStyles();
 
   return <View style={styles.separatorStyle} {...props} />;

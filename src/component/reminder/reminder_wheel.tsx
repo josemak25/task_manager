@@ -1,19 +1,29 @@
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { BottomSheetView } from "@gorhom/bottom-sheet";
 
+import { Picker } from "../picker";
+import { addZero } from "../../helpers/addZero";
+import { generateId } from "../../helpers/generateId";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 
 type ReminderWheelProps = {
   setReminder: (reminder: string) => void;
 };
 
-const hours = [...Array(12)];
-const minutes = [...Array(60)];
 const parentMeter = [...Array(4)];
 const childrenMeter = [...Array(7)];
+const hours = [...Array(24)]
+  .map((_, index) => addZero(++index))
+  .map((hour) => ({ id: generateId(), value: hour, label: hour }));
 
-export const ReminderWheel: React.FC<ReminderWheelProps> = ({}) => {
+const minutes = [...Array(60)]
+  .map((_, index) => addZero(++index))
+  .map((minute) => ({ id: generateId(), value: minute, label: minute }));
+
+export const ReminderWheel: React.FC<ReminderWheelProps> = ({
+  setReminder,
+}) => {
   const { styles } = useStyles();
 
   return (
@@ -58,41 +68,27 @@ export const ReminderWheel: React.FC<ReminderWheelProps> = ({}) => {
         ))}
       </BottomSheetView>
 
-      <ScrollView
-        pagingEnabled
-        bounces={false}
-        decelerationRate={0}
-        snapToAlignment="center"
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainerStyle}
-      >
-        {hours.map((_, index) => (
-          <Text key={`${index}_hours_key`} style={styles.text}>
-            {index < 9 ? `0${++index}` : ++index}
-          </Text>
-        ))}
-      </ScrollView>
+      <Picker
+        haptics
+        height={225}
+        items={hours}
+        backgroundColor="#f2f4f5"
+        initialSelectedIndex={new Date().getHours()}
+        onChange={({ item }) => setReminder(item.value)}
+      />
 
       <BottomSheetView style={styles.columnSeparator}>
         <Text style={[styles.text, styles.columnSeparatorText]}>:</Text>
       </BottomSheetView>
 
-      <ScrollView
-        pagingEnabled
-        bounces={false}
-        decelerationRate={0}
-        snapToAlignment="center"
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainerStyle}
-      >
-        {minutes.map((_, index) => (
-          <Text key={`${index}_minutes_key`} style={styles.text}>
-            {index < 9 ? `0${++index}` : ++index}
-          </Text>
-        ))}
-      </ScrollView>
+      <Picker
+        haptics
+        height={225}
+        items={minutes}
+        backgroundColor="#f2f4f5"
+        initialSelectedIndex={new Date().getMinutes()}
+        onChange={({ item }) => setReminder(item.value)}
+      />
     </BottomSheetView>
   );
 };
