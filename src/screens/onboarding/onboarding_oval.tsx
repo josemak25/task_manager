@@ -16,6 +16,7 @@ import {
   PanGestureHandler,
   TapGestureHandlerGestureEvent,
 } from "react-native-gesture-handler";
+import { useIsFocused } from "@react-navigation/native";
 
 import { inRange } from "../../helpers/inRange";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
@@ -26,6 +27,7 @@ const tags = [...Array(4)].map(generateRandomColor);
 
 export const OnboardingOval: React.FC = () => {
   const scale = useSharedValue(1);
+  const isFocused = useIsFocused();
   const x = useSharedValue(startingPosition);
   const y = useSharedValue(startingPosition);
 
@@ -51,10 +53,6 @@ export const OnboardingOval: React.FC = () => {
       )
     );
   };
-
-  useEffect(() => {
-    startAnimation();
-  }, []);
 
   const gestureHandler = useAnimatedGestureHandler({
     onStart() {
@@ -100,6 +98,16 @@ export const OnboardingOval: React.FC = () => {
       ],
     };
   });
+
+  useEffect(() => {
+    if (isFocused) {
+      // only run animation when screen is mounted
+      startAnimation();
+    } else {
+      // stop animation when screen is unmounted
+      cancelAnimation(scale);
+    }
+  }, [isFocused]);
 
   return (
     <PanGestureHandler onGestureEvent={gestureHandler}>
