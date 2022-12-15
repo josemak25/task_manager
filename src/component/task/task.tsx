@@ -1,15 +1,31 @@
 import React from "react";
 import { Text, View } from "react-native";
 import { Checkbox } from "react-native-paper";
+import dayjs from "dayjs";
+import isToday from "dayjs/plugin/isToday";
+import isYesterday from "dayjs/plugin/isYesterday";
 
+import { Hr } from "../hr";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
-import { generateRandomColor } from "../../helpers/generateRandomColor";
 import { ITask } from "../../providers/StoreProvider/reducers/task/interfaces";
 
-const tags = [...Array(5)].map(generateRandomColor);
+dayjs.extend(isToday);
+dayjs.extend(isYesterday);
 
-export const Task: React.FC<ITask> = ({ title, description, completed }) => {
+export const Task: React.FC<ITask> = ({
+  tags,
+  title,
+  end_time,
+  completed,
+  start_time,
+  created_at,
+  description,
+}) => {
   const { styles } = useStyles();
+
+  const isToday = dayjs(created_at).isToday();
+  const isYesterday = dayjs(created_at).isYesterday();
+  const isLongerDate = !isToday && !isYesterday;
 
   return (
     <View style={styles.container}>
@@ -37,27 +53,38 @@ export const Task: React.FC<ITask> = ({ title, description, completed }) => {
         />
       </View>
 
-      <View style={styles.hr} />
+      <Hr style={styles.hr} />
 
       <View style={styles.timeContainer}>
         <View style={styles.time}>
-          <Text style={styles.day}>Today</Text>
-          <Text style={styles.timer}>10:00 PM - 11:45 PM</Text>
+          {isToday && <Text style={styles.day}>Today</Text>}
+          {isYesterday && <Text style={styles.day}>Yesterday</Text>}
+          {isLongerDate && (
+            <Text style={styles.day}>{dayjs().format("ddd, DD MMM YYYY")}</Text>
+          )}
+
+          <Text style={styles.timer}>
+            {dayjs(start_time).format("hh:mm A")}
+            {dayjs(end_time).format(" - hh:mm A")}
+          </Text>
         </View>
 
         <View style={styles.tagsContainer}>
-          {tags.slice(0, 2).map((backgroundColor, index) => (
+          {tags.slice(0, 2).map(({ color, id }, index) => (
             <View
-              key={index}
+              key={id}
               style={[
                 styles.tag,
-                { right: ++index * 20, backgroundColor, zIndex: -index },
+                { right: ++index * 20, backgroundColor: color, zIndex: -index },
               ]}
             />
           ))}
-          <View style={[styles.tag, { right: 0 * 20 }]}>
-            <Text style={styles.badge}>{`+${tags.length - 2}`}</Text>
-          </View>
+
+          {tags.length > 2 && (
+            <View style={[styles.tag, { right: 0 * 20 }]}>
+              <Text style={styles.badge}>{`+${tags.length - 2}`}</Text>
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -67,8 +94,9 @@ export const Task: React.FC<ITask> = ({ title, description, completed }) => {
 const useStyles = makeUseStyles(({ fonts, isDarkMode, layout, palette }) => ({
   container: {
     borderRadius: layout.gutter,
-    padding: layout.gutter * 2,
     marginBottom: layout.gutter * 2,
+    paddingVertical: layout.gutter * 2,
+    paddingHorizontal: layout.gutter * 1.5,
     backgroundColor: palette.taskBackground,
     shadowColor: "rgba(0,0,0,0.4)",
     shadowOffset: {
