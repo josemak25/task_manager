@@ -8,7 +8,9 @@ import { Task } from "../../component/task";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { RootTabScreenProps } from "../../../types/navigation";
 
-export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({}) => {
+export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
+  navigation,
+}) => {
   const [tab, setTab] = useState("all");
   const { styles, palette } = useStyles();
 
@@ -33,7 +35,7 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({}) => {
           style={styles.button}
           textColor={palette.primary}
           contentStyle={{ height: "100%" }}
-          onPress={() => console.log("Pressed")}
+          onPress={() => navigation.navigate("NewTask")}
         >
           New Task
         </Button>
