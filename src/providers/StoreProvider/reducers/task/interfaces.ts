@@ -6,6 +6,7 @@ export interface ITask {
   created_at: Date;
   updated_at: Date;
   start_time: Date;
+  completed: boolean;
   description: string;
 }
 
