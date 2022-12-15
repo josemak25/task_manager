@@ -1,11 +1,11 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { Checkbox } from "react-native-paper";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
 import isYesterday from "dayjs/plugin/isYesterday";
 
 import { Hr } from "../hr";
+import { Checkbox } from "../checkbox";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { ITask } from "../../providers/StoreProvider/reducers/task/interfaces";
 
@@ -47,10 +47,7 @@ export const Task: React.FC<ITask> = ({
           </Text>
         </View>
 
-        <Checkbox
-          onPress={() => {}}
-          status={completed ? "checked" : "unchecked"}
-        />
+        <Checkbox completed={completed} onChange={() => {}} />
       </View>
 
       <Hr style={styles.hr} />
