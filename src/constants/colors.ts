@@ -14,6 +14,7 @@ export default {
     homeBackground: "#f9f9f9",
     primary: "#0860fb",
     primaryLight: "#e2ebfa",
+    checked: "#44cc11"
   },
   dark: {
     text: "#fff",
@@ -30,5 +31,6 @@ export default {
     homeBackground: "#545c62",
     primary: "#0860fb",
     primaryLight: "#e2ebfa",
+    checked:"#44cc11"
   },
 };

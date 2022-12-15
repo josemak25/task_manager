@@ -20,9 +20,9 @@ type GetStylesPayload = {
 };
 
 export function makeUseStyles<
-  T extends StyleSheet.NamedStyles<T> | StyleSheet.NamedStyles<any>,
+  T extends StyleSheet.NamedStyles<T> | StyleSheet.NamedStyles<any>
 >(
-  getStyles: (payload: GetStylesPayload) => T | StyleSheet.NamedStyles<T>,
+  getStyles: (payload: GetStylesPayload) => T | StyleSheet.NamedStyles<T>
 ): () => GetStylesPayload & { styles: T } {
   return () => {
     const theme = useColorScheme();
@@ -33,9 +33,9 @@ export function makeUseStyles<
     const styles = useMemo(
       () =>
         StyleSheet.create(
-          getStyles({ isDarkMode, palette, layout, colors, fonts, edgeInsets }),
+          getStyles({ isDarkMode, palette, layout, colors, fonts, edgeInsets })
         ),
-      [edgeInsets, isDarkMode, palette],
+      [edgeInsets, isDarkMode, palette]
     );
 
     return { isDarkMode, styles, palette, layout, colors, edgeInsets, fonts };
