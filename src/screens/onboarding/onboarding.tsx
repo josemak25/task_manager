@@ -12,7 +12,7 @@ export const OnboardingScreen: React.FC<RootTabScreenProps<"Onboarding">> = ({
   const { styles, palette } = useStyles();
 
   const handlePress = () => {
-    navigation.navigate("Home");
+    navigation.replace("Home");
   };
 
   return (

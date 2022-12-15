@@ -8,12 +8,12 @@ export default {
     degree: "#b4d7e3",
     white: "#fff",
     delete: "#FF453A",
-    listBackground: "#D4D4D7",
+    taskBackground: "#fff",
     transparent: "rgba(255,255,255,0)",
     red: "#BF0000",
     homeBackground: "#f9f9f9",
-    addNew: '#e2ebfa',
-    lightgrey: '#dadce2'
+    primary: "#0860fb",
+    primaryLight: "#e2ebfa",
   },
   dark: {
     text: "#fff",
@@ -24,11 +24,11 @@ export default {
     degree: "#b4d7e3",
     white: "#fff",
     delete: "#FF453A",
-    listBackground: "#1D1D1F",
+    taskBackground: "#1D1D1F",
     transparent: "rgba(0,0,0,0)",
     red: "#BF0000",
     homeBackground: "#545c62",
-    addNew: '#165edc',
-    lightgrey: '#cbcbcb'
+    primary: "#0860fb",
+    primaryLight: "#e2ebfa",
   },
 };
