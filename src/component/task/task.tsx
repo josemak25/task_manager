@@ -60,7 +60,7 @@ export const Task: React.FC<ITask> = ({
           {isToday && <Text style={styles.day}>Today</Text>}
           {isYesterday && <Text style={styles.day}>Yesterday</Text>}
           {isLongerDate && (
-            <Text style={styles.day}>{dayjs().format("ddd, DD MMM YYYY")}</Text>
+            <Text style={styles.day}>{dayjs().format("DD MMM YYYY")}</Text>
           )}
 
           <Text style={styles.timer}>
