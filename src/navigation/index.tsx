@@ -28,14 +28,13 @@ export const Navigation = () => {
       onReady={onAppIsReady}
       theme={isDarkMode ? DarkTheme : DefaultTheme}
     >
-      <Stack.Navigator initialRouteName="Onboarding">
+      <Stack.Navigator
+        initialRouteName="Onboarding"
+        screenOptions={{ headerShown: false }}
+      >
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="NewTask" component={NewTaskScreen} />
-        <Stack.Screen
-          name="Onboarding"
-          component={OnboardingScreen}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
