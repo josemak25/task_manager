@@ -1,138 +1,149 @@
-import React from "react";
-import { View, Text,  } from "react-native";
-import { Button,  Badge } from 'react-native-paper';
+import React, { Fragment, useState } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { Button, Badge } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
+import dayjs from "dayjs";
 
-import {Cards }from "../../component/card/Cards"
+import { Task } from "../../component/task";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { RootTabScreenProps } from "../../../types/navigation";
 
-export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({}) => {
-  const { styles } = useStyles();
+export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
+  navigation,
+}) => {
+  const [tab, setTab] = useState("all");
+  const { styles, palette } = useStyles();
+
+  const tabs = [
+    { label: "all", badge: 365 },
+    { label: "open", badge: 35 },
+    { label: "closed", badge: 19 },
+  ];
 
   return (
-    <View style={styles.container}>
-          <View style={styles.schedule}>
-            <View style={styles.titleContainer}>
-               <Text style={styles.title}>Today's Task</Text>
-               <Text style={styles.subtitle}>Tuesday, 13 December</Text>
-            </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.schedule}>
+        <View>
+          <Text style={styles.title}>Today's Task</Text>
+          <Text style={styles.subtitle}>{dayjs().format("dddd, DD MMMM")}</Text>
+        </View>
 
-            <Button 
-                icon="plus" 
-                mode="contained"
-                style={styles.button}
-                onPress={() => console.log('Pressed')}>
-                New Task
-            </Button>
-          </View>
+        <Button
+          icon="plus"
+          uppercase={false}
+          mode="contained-tonal"
+          style={styles.button}
+          textColor={palette.primary}
+          contentStyle={{ height: "100%" }}
+          onPress={() => navigation.navigate("NewTask")}
+        >
+          New Task
+        </Button>
+      </View>
 
-          <View style={styles.listContainer}>
-            <View style={styles.list}>
-              <Text style={styles.listItem}>All</Text>
-              <Badge style={styles.badge}>365</Badge>
-            </View>
+      <View style={styles.listContainer}>
+        {tabs.map(({ badge, label }, index) => (
+          <Fragment key={label}>
+            <TouchableOpacity style={styles.list} onPress={() => setTab(label)}>
+              <Text
+                style={[
+                  styles.listItem,
+                  tab === label && styles.selectedListItem,
+                ]}
+              >
+                {label}
+              </Text>
+              <Badge
+                style={[styles.badge, tab === label && styles.selectedBadge]}
+              >
+                {badge}
+              </Badge>
+            </TouchableOpacity>
+            {!index && <View style={styles.vertical} />}
+          </Fragment>
+        ))}
+      </View>
 
-            <View style={styles.vertical}></View>
-
-            <View style={styles.list}>
-              <Text style={styles.listItem}>Open</Text>
-              <Badge style={styles.badge}>35</Badge>
-            </View>
-
-            <View style={styles.list}>
-              <Text style={styles.listItem}>Closed</Text>
-                <Badge style={styles.badge}>19</Badge>
-            </View>
-          </View>
-
-          <Cards/>
-    </View>
+      <Task
+        id=""
+        tags={[]}
+        completed
+        end_time={new Date()}
+        start_time={new Date()}
+        created_at={new Date()}
+        updated_at={new Date()}
+        title="Client Review & Feedback"
+        description="Crypto Wallet Redesign"
+      />
+    </SafeAreaView>
   );
 };
 
-const useStyles = makeUseStyles(({isDarkMode, palette,layout, fonts, edgeInsets }) => ({
+const useStyles = makeUseStyles(({ isDarkMode, palette, layout, fonts }) => ({
   container: {
     flex: 1,
-    paddingTop: edgeInsets.top,
-    paddingBottom: edgeInsets.bottom,
-    paddingHorizontal: layout.gutter * 2,
+    paddingTop: layout.gutter,
+    paddingHorizontal: layout.gutter,
     backgroundColor: palette.homeBackground,
   },
-
-  schedule:{
-    flexDirection: 'row',
-    justifyContent: 'space-between'
+  schedule: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-
-  titleContainer:{
-    
-  },
-
   title: {
     color: palette.text,
     fontSize: fonts.size.xlg,
     fontWeight: fonts.weight.bold,
   },
-
-  subtitle:{
+  subtitle: {
+    marginTop: 3,
     color: palette.text,
     fontSize: fonts.size.md,
     opacity: isDarkMode ? 0.4 : 0.3,
-    marginVertical: layout.gutter - 1.5,
   },
-
-  button:{
-    borderRadius: 10,
-    color: palette.text,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.addNew,
-    marginVertical: layout.gutter - 1.5,
+  button: {
+    height: 40,
+    borderRadius: layout.gutter / 1.5,
+    backgroundColor: palette.primaryLight,
   },
-
-  listContainer:{
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: edgeInsets.top,
-    justifyContent: 'space-between',
-    paddingBottom: edgeInsets.bottom,
+  listContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: layout.gutter * 2.5,
   },
-
-  list:{
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center'
+  list: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingRight: layout.gutter * 2,
+    paddingVertical: layout.gutter / 2,
   },
-
-  listItem:{
+  listItem: {
     color: palette.text,
     fontSize: fonts.size.md,
+    textTransform: "capitalize",
     fontWeight: fonts.weight.semi,
     opacity: isDarkMode ? 0.4 : 0.3,
-   
   },
-
-  circleCounter:{
-    width: 25,
-    height: 25,
-    marginLeft: 10,
-    borderRadius: 15,
-    alignItems: 'center',
-    color: palette.text,
-    backgroundColor: palette.addNew
+  selectedListItem: {
+    opacity: 1,
+    color: palette.primary,
+    fontWeight: fonts.weight.bold,
   },
-
-
-  badge:{
-    marginLeft: 7,
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: palette.lightText,
+  badge: {
+    color: palette.white,
+    marginLeft: layout.gutter / 2,
+    backgroundColor: palette.hairlineColor,
   },
-
-  vertical:{
-    width: 1,
-    height: '100%',
-    backgroundColor: palette.hairlineColor
+  selectedBadge: {
+    backgroundColor: palette.primary,
+  },
+  vertical: {
+    width: 2,
+    height: "50%",
+    borderRadius: 2,
+    marginRight: layout.gutter * 2,
+    backgroundColor: palette.hairlineColor,
   },
 }));
