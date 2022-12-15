@@ -1,8 +1,7 @@
-import React,{useState} from "react";
+import React from "react";
 import { Text, View } from "react-native";
-import { IconButton } from "react-native-paper";
-import {Ionicons} from '@expo/vector-icons'
 
+import { Checkbox } from "../checkbox";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { generateRandomColor } from "../../helpers/generateRandomColor";
 import { ITask } from "../../providers/StoreProvider/reducers/task/interfaces";
@@ -11,7 +10,6 @@ const tags = [...Array(5)].map(generateRandomColor);
 
 export const Task: React.FC<ITask> = ({ title, description, completed }) => {
   const { styles } = useStyles();
-  const [checked, setChecked]=useState()
 
   return (
     <View style={styles.container}>
@@ -33,12 +31,7 @@ export const Task: React.FC<ITask> = ({ title, description, completed }) => {
           </Text>
         </View>
 
-        <IconButton
-          size={30}
-          onPress={() => {}}
-          icon=''
-          style={styles.checkbox}
-        />
+        <Checkbox completed={completed} onChange={() => {}} />
       </View>
 
       <View style={styles.hr} />
@@ -99,10 +92,6 @@ const useStyles = makeUseStyles(({ fonts, isDarkMode, layout, palette }) => ({
     fontSize: fonts.size.default,
     opacity: isDarkMode ? 0.4 : 0.3,
     fontFamily: fonts.variants.medium,
-  },
-  checkbox:{
-    color: palette.white,
-    backgroundColor: palette.checked
   },
   hr: {
     borderBottomWidth: 1,
