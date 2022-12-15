@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { Checkbox } from "react-native-paper";
 
+import { Checkbox } from "../checkbox";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { generateRandomColor } from "../../helpers/generateRandomColor";
 import { ITask } from "../../providers/StoreProvider/reducers/task/interfaces";
@@ -31,10 +31,7 @@ export const Task: React.FC<ITask> = ({ title, description, completed }) => {
           </Text>
         </View>
 
-        <Checkbox
-          onPress={() => {}}
-          status={completed ? "checked" : "unchecked"}
-        />
+        <Checkbox completed={completed} onChange={() => {}} />
       </View>
 
       <View style={styles.hr} />
