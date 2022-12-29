@@ -1,6 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Text, View } from "react-native";
 import { IconButton } from "react-native-paper";
+import { useIsFocused } from "@react-navigation/native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Animated, {
+  withDelay,
+  withTiming,
+  withSpring,
+  withRepeat,
+  withSequence,
+  useSharedValue,
+  cancelAnimation,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
 import { OnboardingOval } from "./onboarding_oval";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
@@ -9,11 +21,37 @@ import { RootTabScreenProps } from "../../../types/navigation";
 export const OnboardingScreen: React.FC<RootTabScreenProps<"Onboarding">> = ({
   navigation,
 }) => {
+  const x = useSharedValue(0);
+  const isFocused = useIsFocused();
   const { styles, palette } = useStyles();
 
-  const handlePress = () => {
-    navigation.replace("Home");
+  const handlePress = () => navigation.replace("Home");
+
+  // start animation here
+  const startAnimation = () => {
+    x.value = withDelay(
+      2000,
+      withRepeat(
+        withSequence(withSpring(10), withTiming(-10, { duration: 500 })),
+        Infinity,
+        true
+      )
+    );
   };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: x.value }],
+  }));
+
+  useEffect(() => {
+    if (isFocused) {
+      // only run animation when screen is mounted
+      startAnimation();
+    } else {
+      // stop animation when screen is unmounted
+      cancelAnimation(x);
+    }
+  }, [isFocused]);
 
   return (
     <View style={styles.container}>
@@ -29,10 +67,18 @@ export const OnboardingScreen: React.FC<RootTabScreenProps<"Onboarding">> = ({
 
       <IconButton
         size={20}
-        icon="arrow-top-right"
         onPress={handlePress}
         iconColor={palette.background}
         style={styles.buttonContainer}
+        icon={(props) => (
+          <Animated.View style={animatedStyle}>
+            <MaterialCommunityIcons
+              {...props}
+              name="arrow-top-right"
+              style={styles.iconStyle}
+            />
+          </Animated.View>
+        )}
       />
     </View>
   );
@@ -73,6 +119,8 @@ const useStyles = makeUseStyles(
       borderRadius: 80 / 2,
       marginTop: layout.gutter * 3,
       backgroundColor: palette.text,
+    },
+    iconStyle: {
       transform: [{ rotate: "45deg" }],
     },
   })

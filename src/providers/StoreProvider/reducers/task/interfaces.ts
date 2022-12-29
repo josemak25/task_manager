@@ -1,16 +1,16 @@
 export interface ITask {
   id: string;
-  tags: ITag[];
   title: string;
   end_time: Date;
+  start_time: Date;
   created_at: Date;
   updated_at: Date;
-  start_time: Date;
   completed: boolean;
   description: string;
+  categories: ICategory[];
 }
 
-export interface ITag {
+export interface ICategory {
   id: string;
   name: string;
   color: string;

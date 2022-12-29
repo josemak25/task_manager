@@ -13,10 +13,10 @@ dayjs.extend(isToday);
 dayjs.extend(isYesterday);
 
 export const Task: React.FC<ITask> = ({
-  tags,
   title,
   end_time,
   completed,
+  categories,
   start_time,
   created_at,
   description,
@@ -66,20 +66,20 @@ export const Task: React.FC<ITask> = ({
           </Text>
         </View>
 
-        <View style={styles.tagsContainer}>
-          {tags.slice(0, 2).map(({ color, id }, index) => (
+        <View style={styles.categoriesContainer}>
+          {categories.slice(0, 2).map(({ color, id }, index) => (
             <View
               key={id}
               style={[
-                styles.tag,
+                styles.category,
                 { right: ++index * 20, backgroundColor: color, zIndex: -index },
               ]}
             />
           ))}
 
-          {tags.length > 2 && (
-            <View style={[styles.tag, { right: 0 * 20 }]}>
-              <Text style={styles.badge}>{`+${tags.length - 2}`}</Text>
+          {categories.length > 2 && (
+            <View style={[styles.category, { right: 0 * 20 }]}>
+              <Text style={styles.badge}>{`+${categories.length - 2}`}</Text>
             </View>
           )}
         </View>
@@ -94,7 +94,7 @@ const useStyles = makeUseStyles(({ fonts, isDarkMode, layout, palette }) => ({
     marginBottom: layout.gutter * 2,
     paddingVertical: layout.gutter * 2,
     paddingHorizontal: layout.gutter * 1.5,
-    backgroundColor: palette.taskBackground,
+    backgroundColor: isDarkMode ? palette.input : palette.background,
     shadowColor: "rgba(0,0,0,0.4)",
     shadowOffset: {
       width: 8,
@@ -147,13 +147,13 @@ const useStyles = makeUseStyles(({ fonts, isDarkMode, layout, palette }) => ({
     opacity: isDarkMode ? 0.4 : 0.3,
     fontFamily: fonts.variants.regular,
   },
-  tagsContainer: {
+  categoriesContainer: {
     flex: 1,
     height: "100%",
     alignItems: "center",
     flexDirection: "row",
   },
-  tag: {
+  category: {
     width: 30,
     height: 30,
     borderWidth: 2,

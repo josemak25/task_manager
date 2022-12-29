@@ -75,7 +75,7 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
         created_at={dayjs(1667661812620).toDate()}
         title="Client Review & Feedback"
         description="Crypto Wallet Redesign"
-        tags={[...Array(5)].map(() => ({
+        categories={[...Array(5)].map(() => ({
           id: generateId(),
           name: generateRandomColor(),
           color: generateRandomColor(),

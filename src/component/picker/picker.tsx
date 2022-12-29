@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { adaptiveColor, setAlphaColor } from "./util";
 import type {
   ItemType,
   IViuPickerProps,
@@ -18,11 +17,12 @@ import type {
 } from "../../../types/types";
 import fonts from "../../constants/fonts";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
+import { setAlphaColor } from "../../helpers/setAlphaColor";
+import { adaptiveColor } from "../../helpers/adaptiveColor";
 
 export const Picker: React.FC<IViuPickerProps> = ({
   onChange,
   items = [],
-  width = 150,
   height = 150,
   flatListProps,
   haptics = false,
@@ -122,9 +122,8 @@ export const Picker: React.FC<IViuPickerProps> = ({
       selectedIndex,
       {
         ...styles.listItem,
-        backgroundColor: alphaBackgroundColor,
-        fontSize: itemHeight,
         height: itemHeight,
+        fontSize: itemHeight,
       },
       handleOnPressItem
     );
@@ -135,13 +134,7 @@ export const Picker: React.FC<IViuPickerProps> = ({
   }, []);
 
   return (
-    <View
-      style={{
-        width,
-        backgroundColor,
-        height: listHeight,
-      }}
-    >
+    <View style={{ flex: 1, height: listHeight }}>
       <FlatList
         data={data}
         //@ts-ignore
@@ -162,6 +155,7 @@ export const Picker: React.FC<IViuPickerProps> = ({
         }}
         {...flatListProps}
       />
+
       <View
         style={[
           gradientContainerStyle(),
