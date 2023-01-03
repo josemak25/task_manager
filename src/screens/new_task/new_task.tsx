@@ -1,32 +1,39 @@
 import React, { useRef, useState } from "react";
-import { View, ScrollView, Text } from "react-native";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Button, IconButton, TextInput } from "react-native-paper";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import dayjs from "dayjs";
 
 import {
   ITask,
   ICategory,
 } from "../../providers/StoreProvider/reducers/task/interfaces";
+import { Reminder } from "../../component/reminder";
 import { generateId } from "../../helpers/generateId";
+import { useKeyboard } from "../../hooks/useKeyboard";
+import { reminderTitles } from "../../constants/reminders";
 import { setAlphaColor } from "../../helpers/setAlphaColor";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
+import { ReminderTitleInterface } from "../../../types/types";
 import { RootTabScreenProps } from "../../../types/navigation";
 import { generateRandomColor } from "../../helpers/generateRandomColor";
 
-const defaultTask = {
+const defaultTask: Partial<ITask> = {
   title: "",
   categories: [],
   description: "",
-  end_time: new Date(),
-  start_time: new Date(),
+  end_time: dayjs().toDate(),
+  start_time: dayjs().toDate(),
 };
 
 export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
-  const { styles, palette } = useStyles();
+  const keyboard = useKeyboard();
+  const scrollRef = useRef<ScrollView>(null);
   const [category, setCategory] = useState("");
-  const [task, setTask] = useState<Partial<ITask>>(defaultTask);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [task, setTask] = useState(defaultTask);
+  const { styles, edgeInsets, palette } = useStyles();
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const [reminderTitle, setReminderTitle] = useState(reminderTitles[0]);
 
   const handleCategory = (name: string) => {
     const categoryName = name.trim();
@@ -49,16 +56,32 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
     category && setCategory("");
   };
 
-  const handleChange = (field: string) => (value: string) => {
+  const handleChange = (field: string) => (value: string | Date) => {
     setTask({ ...task, [field]: value });
   };
 
-  const handleCloseModal = () => setTask({ ...task, ...defaultTask });
+  const handleModalDismiss = () => bottomSheetModalRef.current?.close();
+
+  const handleModelPresent = (title: ReminderTitleInterface["value"]) => () => {
+    const reminderTitle = reminderTitles.find(({ value }) => value === title);
+    setReminderTitle(reminderTitle!);
+    bottomSheetModalRef.current?.present();
+  };
+
+  const onSubmit = () => {};
 
   return (
     <ScrollView
+      ref={scrollRef}
+      bounces={false}
       style={styles.container}
-      contentContainerStyle={styles.contentContainerStyle}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={[
+        styles.contentContainerStyle,
+        keyboard.keyboardShown && {
+          paddingBottom: keyboard.keyboardHeight + edgeInsets.bottom,
+        },
+      ]}
     >
       <TextInput
         mode="outlined"
@@ -77,67 +100,57 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
         }
       />
 
-      <DateTimePicker
-        // modal
-        mode="date"
-        value={new Date()}
-        minimumDate={new Date()}
-        // dateFormat="dayofweek day month"
-        // open={isDatePickerOpen}
-        onChange={(date) => {
-          // setOpen(false)
-          // setDate(date)
-        }}
-      />
-
-      <TextInput
-        // disabled
-        mode="outlined"
-        textColor={palette.text}
-        placeholderTextColor={palette.text}
-        outlineColor={palette.hairlineColor}
-        activeOutlineColor={palette.primary}
-        onPressIn={() => setIsDatePickerOpen(true)}
-        value={dayjs().format("dddd, DD MMMM YYYY")}
-        style={[styles.input, styles.inputBackground]}
-        label={
-          <Text style={[styles.startDateLabel, styles.inputBackground]}>
-            Date
-          </Text>
-        }
-      />
+      <Button
+        uppercase={false}
+        mode="contained-tonal"
+        labelStyle={styles.dateButtonLabel}
+        contentStyle={styles.dateButtonContent}
+        onPress={handleModelPresent("start_date")}
+        style={[
+          styles.input,
+          styles.button,
+          styles.dateButton,
+          styles.inputBackground,
+        ]}
+      >
+        {task?.start_date
+          ? dayjs(task?.start_date).format("dddd, DD MMMM YYYY")
+          : "Date"}
+      </Button>
 
       <View style={styles.dateContainer}>
         <View>
           <Text style={styles.startDateLabel}>Start Time</Text>
-          <View style={styles.startButtonWrapper}>
+          <TouchableOpacity
+            style={styles.startButtonWrapper}
+            onPress={handleModelPresent("start_date")}
+          >
             <View style={styles.startButton}>
-              <DateTimePicker
-                is24Hour
-                mode="time"
-                onChange={(date) => {}}
-                value={task.start_time!}
-                minimumDate={new Date()}
-              />
+              <Text style={styles.startDateLabel}>
+                {dayjs(task?.start_time).format("hh : mm")}
+              </Text>
             </View>
-            <Text style={styles.startHour}>PM</Text>
-          </View>
+            <Text style={styles.startHour}>
+              {dayjs(task?.end_time).format("A")}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View>
           <Text style={styles.startDateLabel}>End Time</Text>
-          <View style={styles.startButtonWrapper}>
+          <TouchableOpacity
+            style={styles.startButtonWrapper}
+            onPress={handleModelPresent("end_time")}
+          >
             <View style={styles.startButton}>
-              <DateTimePicker
-                is24Hour
-                mode="time"
-                value={task.end_time!}
-                onChange={(date) => {}}
-                minimumDate={new Date()}
-              />
+              <Text style={styles.startDateLabel}>
+                {dayjs(task?.end_time).format("hh : mm")}
+              </Text>
             </View>
-            <Text style={styles.startHour}>PM</Text>
-          </View>
+            <Text style={styles.startHour}>
+              {dayjs(task?.end_time).format("A")}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -183,7 +196,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
             size={20}
             icon="plus"
             disabled={!category}
-            iconColor={palette.background}
+            iconColor={palette.white}
             style={styles.addCategoryButton}
             onPress={() => handleCategory(category)}
           />
@@ -216,12 +229,19 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
       <Button
         mode="contained"
         uppercase={false}
-        onPress={() => {}}
+        onPress={onSubmit}
         style={styles.button}
         contentStyle={{ height: "100%" }}
       >
         Create a new task
       </Button>
+
+      <Reminder
+        onDone={handleChange}
+        ref={bottomSheetModalRef}
+        reminderTitle={reminderTitle}
+        onDismiss={handleModalDismiss}
+      />
     </ScrollView>
   );
 };
@@ -262,13 +282,36 @@ const useStyles = makeUseStyles(
     },
     startButton: {
       borderRadius: layout.gutter / 3,
-      backgroundColor: palette.input,
+      paddingHorizontal: layout.gutter,
       marginRight: layout.gutter / 1.5,
+      paddingVertical: layout.gutter / 1.5,
+      backgroundColor: palette.dateBackground,
+    },
+    dateButton: {
+      borderWidth: 1,
+      borderColor: palette.hairlineColor,
+    },
+    dateButtonContent: {
+      height: "100%",
+      justifyContent: "flex-start",
+    },
+    dateButtonLabel: {
+      color: palette.text,
+      fontWeight: fonts.weight.normal,
+      fontFamily: fonts.variants.regular,
     },
     startHour: {
       color: palette.text,
       fontSize: fonts.size.default,
       fontFamily: fonts.variants.medium,
+    },
+    dateMask: {
+      right: 0,
+      width: "42%",
+      height: "100%",
+      position: "absolute",
+      borderRadius: layout.gutter / 3,
+      backgroundColor: palette.dateBackground,
     },
     end: {
       alignItems: "center",

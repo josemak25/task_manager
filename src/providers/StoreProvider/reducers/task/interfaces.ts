@@ -2,6 +2,7 @@ export interface ITask {
   id: string;
   title: string;
   end_time: Date;
+  start_date: Date;
   start_time: Date;
   created_at: Date;
   updated_at: Date;

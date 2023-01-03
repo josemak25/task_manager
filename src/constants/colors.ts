@@ -16,6 +16,7 @@ export default {
     primaryLight: "#e2ebfa",
     checked: "#44cc11",
     listBackground: "#f2f4f5",
+    dateBackground: "#E9E9EA",
   },
   dark: {
     text: "#fff",
@@ -34,5 +35,6 @@ export default {
     primaryLight: "#e2ebfa",
     checked: "#44cc11",
     listBackground: "#f2f4f5",
+    dateBackground: "#545c62",
   },
 };
