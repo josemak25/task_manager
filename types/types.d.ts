@@ -6,30 +6,10 @@ interface BasicError {
   message: string;
 }
 
-export type ItemType = { id: string; label: string; value: any };
+export type ReminderInterface = { id: string; label: string; value: Date };
 
-export type RenderItemProps = {
-  label: string;
-  fontSize: number;
-  fontColor: string;
-  textAlign: "center" | "auto" | "left" | "right" | "justify";
+export type ReminderTitleInterface = {
+  id: string;
+  value: "end_time" | "start_time" | "start_date";
+  label: "set reminder" | "set start reminder" | "set end reminder";
 };
-
-export interface IViuPickerProps {
-  items: ItemType[];
-  onChange: (item: { index: number; item: ItemType }) => void;
-  initialSelectedIndex?: number;
-  height?: number;
-  width?: any;
-  flatListProps?: Partial<FlatListProps<ItemType>>;
-  backgroundColor?: string;
-  renderItem?: (props: RenderItemProps) => JSX.Element;
-  haptics?: boolean;
-}
-
-export interface IViuPickerState {
-  selectedIndex: number;
-  itemHeight: number;
-  listHeight: number;
-  data: ItemType[];
-}

@@ -1,21 +1,14 @@
 import React from "react";
-import { Button } from "react-native-paper";
 import { ScrollView } from "react-native";
+import { Button } from "react-native-paper";
 
+import { reminders } from "../../constants/reminders";
+import { ReminderInterface } from "../../../types/types";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 
-const reminders = [
-  "No Reminder",
-  "In an Hour",
-  "In Two Hours",
-  "In Three Hours",
-  "In Four Hours",
-  "In Five Hours",
-];
-
 type ReminderListProps = {
-  reminder: string;
-  setReminder: (reminder: string) => void;
+  reminder: ReminderInterface;
+  setReminder: (reminder: ReminderInterface) => void;
 };
 
 export const ReminderList: React.FC<ReminderListProps> = ({
@@ -27,37 +20,42 @@ export const ReminderList: React.FC<ReminderListProps> = ({
   return (
     <ScrollView
       horizontal
-      style={styles.contentContainerStyle}
+      style={styles.containerStyle}
       showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.contentContainerStyle}
     >
-      {reminders.map((text, index) => (
+      {reminders.map((data) => (
         <Button
+          key={data.id}
           mode="outlined"
           uppercase={false}
-          key={text + index}
-          onPress={() => setReminder(text)}
+          onPress={() => setReminder(data)}
           contentStyle={styles.contentStyle}
           labelStyle={[
             styles.reminderItemText,
-            text === reminder && styles.selectedReminderItemText,
+            data.id === reminder.id && styles.selectedReminderItemText,
           ]}
           style={[
             styles.reminderItem,
-            text === reminder && styles.selectedReminderItem,
+            data.id === reminder.id && styles.selectedReminderItem,
           ]}
         >
-          {text}
+          {data.label}
         </Button>
       ))}
     </ScrollView>
   );
 };
 
-const useStyles = makeUseStyles(({ layout, fonts, colors, palette }) => ({
-  contentContainerStyle: {
+const useStyles = makeUseStyles(({ isDarkMode, layout, fonts, palette }) => ({
+  containerStyle: {
     maxHeight: 45,
     marginTop: layout.gutter,
+    marginBottom: layout.gutter * 2,
     paddingHorizontal: layout.gutter,
+  },
+  contentContainerStyle: {
+    paddingRight: 20,
   },
   reminderItem: {
     flex: 1,
@@ -65,13 +63,15 @@ const useStyles = makeUseStyles(({ layout, fonts, colors, palette }) => ({
     borderWidth: 1,
     justifyContent: "center",
     borderRadius: layout.gutter,
-    backgroundColor: "#f2f4f5",
     marginRight: layout.gutter / 1.5,
     borderColor: palette.transparent,
+    backgroundColor: isDarkMode
+      ? palette.hairlineColor
+      : palette.listBackground,
   },
   selectedReminderItem: {
     backgroundColor: palette.transparent,
-    borderColor: colors.light.listBackground,
+    borderColor: isDarkMode ? palette.lightText : palette.listBackground,
   },
   reminderItemText: {
     color: palette.text,

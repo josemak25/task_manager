@@ -12,8 +12,8 @@ import Animated, {
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 
 export const BottomSheetBackdrop: React.FC<
-  BottomSheetBackdropProps & { onClose?: VoidFunction }
-> = ({ style, animatedIndex, onClose }) => {
+  BottomSheetBackdropProps & { onDismiss?: VoidFunction }
+> = ({ style, animatedIndex, onDismiss }) => {
   const { styles } = useStyles();
 
   // animated variables
@@ -33,7 +33,7 @@ export const BottomSheetBackdrop: React.FC<
   );
 
   return (
-    <TouchableWithoutFeedback onPress={onClose}>
+    <TouchableWithoutFeedback onPress={onDismiss}>
       <Animated.View style={containerStyle} />
     </TouchableWithoutFeedback>
   );

@@ -3,8 +3,8 @@ import { StyleSheet } from "react-native";
 
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 
-import colors from "../constants/colors";
 import fonts from "../constants/fonts";
+import colors from "../constants/colors";
 import layout from "../constants/layout";
 import useColorScheme from "../hooks/useColorScheme";
 
