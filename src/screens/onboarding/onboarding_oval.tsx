@@ -167,6 +167,7 @@ const useStyles = makeUseStyles(({ isDarkMode, palette, layout, fonts }) => ({
     top: 50,
     left: -40,
     zIndex: 1,
+    maxWidth: 330,
     minHeight: 200,
     borderLeftWidth: 2,
     borderRightWidth: 2,
@@ -190,6 +191,7 @@ const useStyles = makeUseStyles(({ isDarkMode, palette, layout, fonts }) => ({
   },
   backOval: {
     zIndex: 99,
+    maxWidth: 260,
     minHeight: 260,
     padding: layout.gutter * 2,
     backgroundColor: "#ed7477",

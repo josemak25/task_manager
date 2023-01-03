@@ -11,9 +11,9 @@ export const Providers: React.FC<PropsWithChildren> = ({ children }) => {
     <PaperProvider>
       <StoreProvider>
         <SafeAreaProvider>
-          <BottomSheetModalProvider>
-            <StatusBarProvider>{children}</StatusBarProvider>
-          </BottomSheetModalProvider>
+          <StatusBarProvider>
+            <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+          </StatusBarProvider>
         </SafeAreaProvider>
       </StoreProvider>
     </PaperProvider>

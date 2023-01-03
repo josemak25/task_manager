@@ -1,91 +1,142 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Text } from "react-native";
 import { Button } from "react-native-paper";
 import { setStatusBarStyle } from "expo-status-bar";
 import {
   BottomSheetView,
   BottomSheetModal,
-  BottomSheetProps,
+  BottomSheetModalProps,
   BottomSheetBackdropProps,
+  useBottomSheetDynamicSnapPoints,
 } from "@gorhom/bottom-sheet";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 
 import { ReminderList } from "./reminder_list";
-import { ReminderWheel } from "./reminder_wheel";
 import { BottomSheetBackdrop } from "./modal_backdrop";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
+import { ReminderTitleInterface } from "../../../types/types";
+import { reminders, reminderTitles } from "../../constants/reminders";
 
-type BaseReminderModalProps = Partial<BottomSheetProps> & {
-  title?: string;
-  reminder: string;
-  snapPoints?: string[];
+type BaseReminderModalProps = Partial<BottomSheetModalProps> & {
   ref: React.RefObject<BottomSheetModal>;
-  setReminder: (reminder: string) => void;
+  reminderTitle?: ReminderTitleInterface;
+  onDone: (field: string) => (value: Date) => void;
 };
 
-const snapPoints = ["55%"];
+const defaultReminderTitle = reminderTitles[0];
+const initialSnapPoints = ["CONTENT_HEIGHT"];
 
 export const Reminder = React.forwardRef<
   BottomSheetModal,
   BaseReminderModalProps
->(({ title = "set reminder", reminder, setReminder, ...props }, ref) => {
-  const { isDarkMode, styles } = useStyles();
+>(
+  (
+    { reminderTitle = defaultReminderTitle, onDismiss, onDone, ...props },
+    ref
+  ) => {
+    const { isDarkMode, styles } = useStyles();
+    const dateRef = useRef<Date>(reminders[0].value);
+    const [reminder, setReminder] = useState(reminders[0]);
 
-  const onChange = () => setStatusBarStyle(isDarkMode ? "light" : "dark");
+    const {
+      animatedSnapPoints,
+      handleContentLayout,
+      animatedHandleHeight,
+      animatedContentHeight,
+    } = useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
-  const BackdropComponent = useCallback(
-    (p: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop onClose={props?.onClose} {...p} />
-    ),
-    []
-  );
+    const onStatusBarChange = () => {
+      setStatusBarStyle(isDarkMode ? "light" : "dark");
+    };
 
-  return (
-    <BottomSheetModal
-      {...props}
-      ref={ref}
-      onChange={onChange}
-      snapPoints={snapPoints}
-      backdropComponent={BackdropComponent}
-      handleIndicatorStyle={styles.handleIndicatorStyle}
-      backgroundStyle={styles.bottomSheetBackgroundStyle}
-    >
-      <BottomSheetView style={styles.contentContainer}>
-        <Text style={styles.title}>{title}</Text>
-        <ReminderList reminder={reminder} setReminder={setReminder} />
-        <ReminderWheel setReminder={setReminder} />
+    const BackdropComponent = useCallback(
+      (p: BottomSheetBackdropProps) => (
+        <BottomSheetBackdrop onDismiss={onDismiss} {...p} />
+      ),
+      []
+    );
 
-        <BottomSheetView style={styles.buttonContainer}>
-          <Button
-            mode="outlined"
-            uppercase={false}
-            style={styles.button}
-            onPress={props.onClose}
-            labelStyle={styles.buttonText}
-            contentStyle={styles.contentStyle}
-          >
-            Cancel
-          </Button>
-          <Button
-            uppercase={false}
-            onPress={() => {}}
-            mode="contained-tonal"
-            contentStyle={styles.contentStyle}
-            labelStyle={[styles.buttonText, styles.doneButtonText]}
-            style={[styles.button, styles.doneButton]}
-          >
-            Done
-          </Button>
+    const onDateChange = (_event: DateTimePickerEvent, date?: Date) => {
+      if (date) {
+        dateRef.current = date;
+      }
+    };
+
+    return (
+      <BottomSheetModal
+        {...props}
+        ref={ref}
+        onDismiss={onDismiss}
+        onChange={onStatusBarChange}
+        snapPoints={animatedSnapPoints}
+        handleHeight={animatedHandleHeight}
+        contentHeight={animatedContentHeight}
+        backdropComponent={BackdropComponent}
+        handleIndicatorStyle={styles.handleIndicatorStyle}
+        backgroundStyle={styles.bottomSheetBackgroundStyle}
+      >
+        <BottomSheetView
+          onLayout={handleContentLayout}
+          style={styles.contentContainer}
+        >
+          <Text style={styles.title}>{reminderTitle.label}</Text>
+
+          {reminderTitle.id !== defaultReminderTitle.id && (
+            <ReminderList
+              reminder={reminder}
+              setReminder={(reminder) => {
+                dateRef.current = reminder.value;
+                setReminder(reminder);
+              }}
+            />
+          )}
+
+          <BottomSheetView style={styles.wheelContainer}>
+            <DateTimePicker
+              display="spinner"
+              value={reminder.value}
+              onChange={onDateChange}
+              mode={
+                reminderTitle.id === defaultReminderTitle.id ? "date" : "time"
+              }
+            />
+          </BottomSheetView>
+
+          <BottomSheetView style={styles.buttonContainer}>
+            <Button
+              mode="outlined"
+              uppercase={false}
+              onPress={onDismiss}
+              style={styles.button}
+              labelStyle={styles.buttonText}
+              contentStyle={styles.contentStyle}
+            >
+              Cancel
+            </Button>
+            <Button
+              uppercase={false}
+              mode="contained-tonal"
+              contentStyle={styles.contentStyle}
+              style={[styles.button, styles.doneButton]}
+              labelStyle={[styles.buttonText, styles.doneButtonText]}
+              onPress={() => onDone(reminderTitle.value)(dateRef.current!)}
+            >
+              Done
+            </Button>
+          </BottomSheetView>
         </BottomSheetView>
-      </BottomSheetView>
-    </BottomSheetModal>
-  );
-});
+      </BottomSheetModal>
+    );
+  }
+);
 
 const useStyles = makeUseStyles(
-  ({ edgeInsets, layout, fonts, colors, palette }) => ({
+  ({ isDarkMode, edgeInsets, layout, fonts, colors, palette }) => ({
     bottomSheetBackgroundStyle: {
       shadowColor: colors.light.text,
-      backgroundColor: palette.white,
+      backgroundColor: isDarkMode ? palette.input : palette.white,
       shadowOffset: {
         width: 0,
         height: 5,
@@ -96,7 +147,7 @@ const useStyles = makeUseStyles(
     },
     handleIndicatorStyle: {
       opacity: 0.2,
-      backgroundColor: colors.light.text,
+      backgroundColor: palette.text,
     },
     contentContainer: {
       flex: 1,
@@ -133,16 +184,22 @@ const useStyles = makeUseStyles(
       borderRadius: layout.gutter,
       marginRight: layout.gutter / 1.5,
       backgroundColor: palette.transparent,
-      borderColor: colors.light.listBackground,
+      borderColor: isDarkMode ? palette.lightText : palette.listBackground,
     },
     doneButton: {
       flex: 1,
       marginRight: 0,
       backgroundColor: "#00cbff",
+      borderColor: palette.transparent,
     },
     doneButtonText: {
       opacity: 1,
       color: palette.white,
+    },
+    wheelContainer: {
+      flex: 1,
+      marginBottom: layout.gutter * 2,
+      paddingHorizontal: layout.gutter,
     },
   })
 );

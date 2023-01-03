@@ -12,10 +12,12 @@ import { useIsDarkMode } from "../hooks/useIsDarkMode";
 import { usePrepareApp } from "../hooks/usePrepareApp";
 import { StackParamList } from "../../types/navigation";
 import { OnboardingScreen } from "../screens/onboarding";
+import { makeUseStyles } from "../helpers/makeUseStyles";
 
 const Stack = createNativeStackNavigator<StackParamList>();
 
 export const Navigation = () => {
+  const { palette } = useStyles();
   const isDarkMode = useIsDarkMode();
   const { appIsReady, onAppIsReady } = usePrepareApp();
 
@@ -33,9 +35,22 @@ export const Navigation = () => {
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="NewTask" component={NewTaskScreen} />
+        <Stack.Screen
+          name="NewTask"
+          component={NewTaskScreen}
+          options={{
+            headerShown: true,
+            title: "New Task",
+            headerTitleAlign: "center",
+            headerTintColor: palette.text,
+            headerBackTitleVisible: false,
+            headerStyle: { backgroundColor: palette.background },
+          }}
+        />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
+
+const useStyles = makeUseStyles(() => ({}));

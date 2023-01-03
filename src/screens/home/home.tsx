@@ -5,8 +5,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import dayjs from "dayjs";
 
 import { Task } from "../../component/task";
+import { generateId } from "../../helpers/generateId";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { RootTabScreenProps } from "../../../types/navigation";
+import { generateRandomColor } from "../../helpers/generateRandomColor";
 
 export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
   navigation,
@@ -65,15 +67,19 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
       </View>
 
       <Task
-        id=""
-        tags={[]}
         completed
-        end_time={new Date()}
-        start_time={new Date()}
-        created_at={new Date()}
-        updated_at={new Date()}
+        id={generateId()}
+        end_time={dayjs(1667661812620).toDate()}
+        start_time={dayjs(1667661812620).toDate()}
+        updated_at={dayjs(1667661812620).toDate()}
+        created_at={dayjs(1667661812620).toDate()}
         title="Client Review & Feedback"
         description="Crypto Wallet Redesign"
+        categories={[...Array(5)].map(() => ({
+          id: generateId(),
+          name: generateRandomColor(),
+          color: generateRandomColor(),
+        }))}
       />
     </SafeAreaView>
   );
