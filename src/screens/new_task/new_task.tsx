@@ -64,7 +64,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
     setTask({ ...task, [field]: value });
   };
 
-  const handleModelPresent = (title: ReminderTitleInterface["value"]) => () => {
+  const handleModalPresent = (title: ReminderTitleInterface["value"]) => () => {
     const reminderTitle = reminderTitles.find(({ value }) => value === title);
     setReminderTitle(reminderTitle!);
     bottomSheetModalRef.current?.present();
@@ -100,8 +100,8 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
         outlineColor={palette.hairlineColor}
         activeOutlineColor={palette.primary}
         onChangeText={handleChange("title")}
+        placeholderTextColor={palette.lightText}
         style={[styles.input, styles.inputBackground]}
-        placeholderTextColor={palette.shadedBackground}
       />
 
       <Text style={styles.startDateLabel}>Date</Text>
@@ -110,10 +110,10 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
         mode="contained-tonal"
         labelStyle={[
           styles.dateButtonLabel,
-          !task?.start_date && { color: palette.shadedBackground },
+          !task?.start_date && { color: palette.lightText },
         ]}
         contentStyle={styles.dateButtonContent}
-        onPress={handleModelPresent("start_date")}
+        onPress={handleModalPresent("start_date")}
         style={[
           styles.input,
           styles.button,
@@ -129,7 +129,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
           <Text style={styles.startDateLabel}>Start Time</Text>
           <TouchableOpacity
             style={styles.startButtonWrapper}
-            onPress={handleModelPresent("start_time")}
+            onPress={handleModalPresent("start_time")}
           >
             <View style={styles.startButton}>
               <Text style={styles.startDateLabel}>
@@ -146,7 +146,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
           <Text style={styles.startDateLabel}>End Time</Text>
           <TouchableOpacity
             style={styles.startButtonWrapper}
-            onPress={handleModelPresent("end_time")}
+            onPress={handleModalPresent("end_time")}
           >
             <View style={styles.startButton}>
               <Text style={styles.startDateLabel}>
@@ -169,8 +169,8 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
         style={styles.inputBackground}
         outlineColor={palette.hairlineColor}
         activeOutlineColor={palette.primary}
+        placeholderTextColor={palette.lightText}
         onChangeText={handleChange("description")}
-        placeholderTextColor={palette.shadedBackground}
         placeholder="Build an E-Commerce Website about hand made furniture"
       />
 
@@ -186,8 +186,8 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
             onChangeText={setCategory}
             outlineColor={palette.hairlineColor}
             activeOutlineColor={palette.primary}
+            placeholderTextColor={palette.lightText}
             style={[styles.input, styles.inputBackground]}
-            placeholderTextColor={palette.shadedBackground}
           />
 
           <View style={styles.addCategoryButtonContainer}>

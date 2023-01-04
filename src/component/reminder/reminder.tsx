@@ -204,8 +204,13 @@ const useStyles = makeUseStyles(
     },
     wheelContainer: {
       flex: 1,
+      borderRadius: layout.gutter,
       marginBottom: layout.gutter * 2,
+      marginHorizontal: layout.gutter,
       paddingHorizontal: layout.gutter,
+      backgroundColor: isDarkMode
+        ? palette.hairlineColor
+        : palette.listBackground,
     },
   })
 );

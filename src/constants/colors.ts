@@ -1,7 +1,7 @@
 export default {
   light: {
     text: "#20262b",
-    lightText: "#333",
+    lightText: "#c2c2c2",
     background: "#fff",
     hairlineColor: "#b2b2b2",
     shadedBackground: "#c2c2c2",
