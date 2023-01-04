@@ -11,6 +11,7 @@ import {
 import { Reminder } from "../../component/reminder";
 import { generateId } from "../../helpers/generateId";
 import { useKeyboard } from "../../hooks/useKeyboard";
+import { validateTask } from "../../helpers/validateTask";
 import { reminderTitles } from "../../constants/reminders";
 import { setAlphaColor } from "../../helpers/setAlphaColor";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
@@ -22,8 +23,8 @@ const defaultTask: Partial<ITask> = {
   title: "",
   categories: [],
   description: "",
-  end_time: dayjs().toDate(),
   start_time: dayjs().toDate(),
+  end_time: dayjs().add(30, "m").toDate(),
 };
 
 export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
@@ -31,6 +32,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
   const scrollRef = useRef<ScrollView>(null);
   const [category, setCategory] = useState("");
   const [task, setTask] = useState(defaultTask);
+  const [errors, setErrors] = useState(defaultTask);
   const { styles, edgeInsets, palette } = useStyles();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [reminderTitle, setReminderTitle] = useState(reminderTitles[0]);
@@ -56,11 +58,11 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
     category && setCategory("");
   };
 
+  const handleModalDismiss = () => bottomSheetModalRef.current?.close();
+
   const handleChange = (field: string) => (value: string | Date) => {
     setTask({ ...task, [field]: value });
   };
-
-  const handleModalDismiss = () => bottomSheetModalRef.current?.close();
 
   const handleModelPresent = (title: ReminderTitleInterface["value"]) => () => {
     const reminderTitle = reminderTitles.find(({ value }) => value === title);
@@ -68,7 +70,13 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
     bottomSheetModalRef.current?.present();
   };
 
-  const onSubmit = () => {};
+  const onSubmit = () => {
+    const { hasErrors, errors } = validateTask(task);
+
+    if (hasErrors) {
+      return setErrors(errors);
+    }
+  };
 
   return (
     <ScrollView
@@ -83,27 +91,27 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
         },
       ]}
     >
+      <Text style={styles.startDateLabel}>Title</Text>
       <TextInput
         mode="outlined"
         value={task.title}
         textColor={palette.text}
         placeholder="Dinner with Family"
-        placeholderTextColor={palette.text}
         outlineColor={palette.hairlineColor}
         activeOutlineColor={palette.primary}
         onChangeText={handleChange("title")}
         style={[styles.input, styles.inputBackground]}
-        label={
-          <Text style={[styles.startDateLabel, styles.inputBackground]}>
-            Title
-          </Text>
-        }
+        placeholderTextColor={palette.shadedBackground}
       />
 
+      <Text style={styles.startDateLabel}>Date</Text>
       <Button
         uppercase={false}
         mode="contained-tonal"
-        labelStyle={styles.dateButtonLabel}
+        labelStyle={[
+          styles.dateButtonLabel,
+          !task?.start_date && { color: palette.shadedBackground },
+        ]}
         contentStyle={styles.dateButtonContent}
         onPress={handleModelPresent("start_date")}
         style={[
@@ -113,9 +121,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
           styles.inputBackground,
         ]}
       >
-        {task?.start_date
-          ? dayjs(task?.start_date).format("dddd, DD MMMM YYYY")
-          : "Date"}
+        {dayjs(task?.start_date).format("dddd, DD MMMM YYYY")}
       </Button>
 
       <View style={styles.dateContainer}>
@@ -123,7 +129,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
           <Text style={styles.startDateLabel}>Start Time</Text>
           <TouchableOpacity
             style={styles.startButtonWrapper}
-            onPress={handleModelPresent("start_date")}
+            onPress={handleModelPresent("start_time")}
           >
             <View style={styles.startButton}>
               <Text style={styles.startDateLabel}>
@@ -154,52 +160,46 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
         </View>
       </View>
 
+      <Text style={styles.startDateLabel}>Description</Text>
       <TextInput
         multiline
         mode="outlined"
         textColor={palette.text}
         value={task.description}
         style={styles.inputBackground}
-        placeholderTextColor={palette.text}
         outlineColor={palette.hairlineColor}
         activeOutlineColor={palette.primary}
         onChangeText={handleChange("description")}
+        placeholderTextColor={palette.shadedBackground}
         placeholder="Build an E-Commerce Website about hand made furniture"
-        label={
-          <Text style={[styles.startDateLabel, styles.inputBackground]}>
-            Description
-          </Text>
-        }
       />
 
-      <View style={styles.addCategoryContainer}>
-        <TextInput
-          mode="outlined"
-          maxLength={26}
-          value={category}
-          placeholder="Website"
-          textColor={palette.text}
-          onChangeText={setCategory}
-          placeholderTextColor={palette.text}
-          outlineColor={palette.hairlineColor}
-          activeOutlineColor={palette.primary}
-          style={[styles.input, styles.inputBackground]}
-          label={
-            <Text style={[styles.startDateLabel, styles.inputBackground]}>
-              Add category
-            </Text>
-          }
-        />
-
-        <View style={styles.addCategoryButtonContainer}>
-          <IconButton
-            size={20}
-            icon="plus"
-            disabled={!category}
-            iconColor={palette.white}
-            style={styles.addCategoryButton}
-            onPress={() => handleCategory(category)}
+      <View style={styles.addCategoryWrapper}>
+        <Text style={styles.startDateLabel}>Category</Text>
+        <View style={styles.addCategoryContainer}>
+          <TextInput
+            mode="outlined"
+            maxLength={26}
+            value={category}
+            placeholder="Website"
+            textColor={palette.text}
+            onChangeText={setCategory}
+            outlineColor={palette.hairlineColor}
+            activeOutlineColor={palette.primary}
+            style={[styles.input, styles.inputBackground]}
+            placeholderTextColor={palette.shadedBackground}
           />
+
+          <View style={styles.addCategoryButtonContainer}>
+            <IconButton
+              size={20}
+              icon="plus"
+              disabled={!category}
+              iconColor={palette.white}
+              style={styles.addCategoryButton}
+              onPress={() => handleCategory(category)}
+            />
+          </View>
         </View>
       </View>
 
@@ -288,6 +288,7 @@ const useStyles = makeUseStyles(
       backgroundColor: palette.dateBackground,
     },
     dateButton: {
+      marginTop: 5,
       borderWidth: 1,
       borderColor: palette.hairlineColor,
     },
@@ -324,6 +325,8 @@ const useStyles = makeUseStyles(
     },
     addCategoryContainer: {
       justifyContent: "center",
+    },
+    addCategoryWrapper: {
       marginTop: layout.gutter * 2,
     },
     addCategoryButtonContainer: {

@@ -47,9 +47,7 @@ export const Reminder = React.forwardRef<
       animatedContentHeight,
     } = useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
-    const onStatusBarChange = () => {
-      setStatusBarStyle(isDarkMode ? "light" : "dark");
-    };
+    const onChange = () => setStatusBarStyle(isDarkMode ? "light" : "dark");
 
     const BackdropComponent = useCallback(
       (p: BottomSheetBackdropProps) => (
@@ -64,12 +62,17 @@ export const Reminder = React.forwardRef<
       }
     };
 
+    const onModalDismiss = () => {
+      setReminder(reminders[0]);
+      dateRef.current = reminders[0].value;
+    };
+
     return (
       <BottomSheetModal
         {...props}
         ref={ref}
-        onDismiss={onDismiss}
-        onChange={onStatusBarChange}
+        onChange={onChange}
+        onDismiss={onModalDismiss}
         snapPoints={animatedSnapPoints}
         handleHeight={animatedHandleHeight}
         contentHeight={animatedContentHeight}
@@ -121,7 +124,10 @@ export const Reminder = React.forwardRef<
               contentStyle={styles.contentStyle}
               style={[styles.button, styles.doneButton]}
               labelStyle={[styles.buttonText, styles.doneButtonText]}
-              onPress={() => onDone(reminderTitle.value)(dateRef.current!)}
+              onPress={() => {
+                onDone(reminderTitle.value)(dateRef.current!);
+                onDismiss?.();
+              }}
             >
               Done
             </Button>

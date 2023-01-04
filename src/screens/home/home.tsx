@@ -70,6 +70,7 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
         completed
         id={generateId()}
         end_time={dayjs(1667661812620).toDate()}
+        start_date={dayjs(1667661812620).toDate()}
         start_time={dayjs(1667661812620).toDate()}
         updated_at={dayjs(1667661812620).toDate()}
         created_at={dayjs(1667661812620).toDate()}
