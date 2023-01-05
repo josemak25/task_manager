@@ -32,10 +32,12 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
   const scrollRef = useRef<ScrollView>(null);
   const [category, setCategory] = useState("");
   const [task, setTask] = useState(defaultTask);
-  const [errors, setErrors] = useState(defaultTask);
   const { styles, edgeInsets, palette } = useStyles();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [reminderTitle, setReminderTitle] = useState(reminderTitles[0]);
+  const [errors, setErrors] = useState<Record<keyof ITask, string> | null>(
+    null
+  );
 
   const handleCategory = (name: string) => {
     const categoryName = name.trim();
@@ -60,7 +62,10 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
 
   const handleModalDismiss = () => bottomSheetModalRef.current?.close();
 
-  const handleChange = (field: string) => (value: string | Date) => {
+  const handleChange = (field: keyof ITask) => (value: string | Date) => {
+    if (errors?.[field]) {
+      setErrors({ ...errors, [field]: null });
+    }
     setTask({ ...task, [field]: value });
   };
 
@@ -76,6 +81,10 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
     if (hasErrors) {
       return setErrors(errors);
     }
+
+    // submit to redux store
+
+    setTask(defaultTask);
   };
 
   return (
@@ -91,18 +100,22 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
         },
       ]}
     >
-      <Text style={styles.startDateLabel}>Title</Text>
-      <TextInput
-        mode="outlined"
-        value={task.title}
-        textColor={palette.text}
-        placeholder="Dinner with Family"
-        outlineColor={palette.hairlineColor}
-        activeOutlineColor={palette.primary}
-        onChangeText={handleChange("title")}
-        placeholderTextColor={palette.lightText}
-        style={[styles.input, styles.inputBackground]}
-      />
+      <View style={styles.titleContainer}>
+        <Text style={styles.startDateLabel}>Title</Text>
+        <TextInput
+          mode="outlined"
+          value={task.title}
+          error={!!errors?.title}
+          textColor={palette.text}
+          placeholder="Dinner with Family"
+          outlineColor={palette.hairlineColor}
+          activeOutlineColor={palette.primary}
+          onChangeText={handleChange("title")}
+          placeholderTextColor={palette.lightText}
+          style={[styles.input, styles.inputBackground, styles.inputOverride]}
+        />
+        {errors?.title && <Text style={styles.error}>{errors?.title}</Text>}
+      </View>
 
       <Text style={styles.startDateLabel}>Date</Text>
       <Button
@@ -166,6 +179,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
         mode="outlined"
         textColor={palette.text}
         value={task.description}
+        error={!!errors?.description}
         style={styles.inputBackground}
         outlineColor={palette.hairlineColor}
         activeOutlineColor={palette.primary}
@@ -173,6 +187,9 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
         onChangeText={handleChange("description")}
         placeholder="Build an E-Commerce Website about hand made furniture"
       />
+      {errors?.description && (
+        <Text style={styles.error}>{errors?.description}</Text>
+      )}
 
       <View style={styles.addCategoryWrapper}>
         <Text style={styles.startDateLabel}>Category</Text>
@@ -263,9 +280,15 @@ const useStyles = makeUseStyles(
       justifyContent: "space-between",
       marginBottom: layout.gutter * 2.5,
     },
+    titleContainer: {
+      marginBottom: layout.gutter,
+    },
     input: {
       height: 50,
       marginBottom: layout.gutter,
+    },
+    inputOverride: {
+      marginBottom: 0,
     },
     inputBackground: {
       backgroundColor: palette.input,
@@ -274,6 +297,13 @@ const useStyles = makeUseStyles(
       fontSize: fonts.size.default,
       fontFamily: fonts.variants.medium,
       color: isDarkMode ? palette.text : palette.hairlineColor,
+    },
+    error: {
+      opacity: 0.7,
+      marginVertical: 5,
+      color: palette.red,
+      fontSize: fonts.size.default,
+      fontFamily: fonts.variants.medium,
     },
     startButtonWrapper: {
       alignItems: "center",

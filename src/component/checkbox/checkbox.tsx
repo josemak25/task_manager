@@ -4,6 +4,7 @@ import Animated, {
   withSpring,
   withSequence,
   useSharedValue,
+  cancelAnimation,
   useAnimatedStyle,
 } from "react-native-reanimated";
 
@@ -23,6 +24,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({ onChange, completed }) => {
   }));
 
   const startAnimation = () => {
+    cancelAnimation(scale);
     onChange();
     scale.value = withSequence(
       withSpring(0.7),

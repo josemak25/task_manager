@@ -18,11 +18,12 @@ import { BottomSheetBackdrop } from "./modal_backdrop";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { ReminderTitleInterface } from "../../../types/types";
 import { reminders, reminderTitles } from "../../constants/reminders";
+import { ITask } from "../../providers/StoreProvider/reducers/task/interfaces";
 
 type BaseReminderModalProps = Partial<BottomSheetModalProps> & {
   ref: React.RefObject<BottomSheetModal>;
   reminderTitle?: ReminderTitleInterface;
-  onDone: (field: string) => (value: Date) => void;
+  onDone: (field: keyof ITask) => (value: Date) => void;
 };
 
 const defaultReminderTitle = reminderTitles[0];
