@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from "react";
 import { Text } from "react-native";
+import dayjs from "dayjs";
 import { Button } from "react-native-paper";
 import { setStatusBarStyle } from "expo-status-bar";
 import {
@@ -23,7 +24,7 @@ import { ITask } from "../../providers/StoreProvider/reducers/task/interfaces";
 type BaseReminderModalProps = Partial<BottomSheetModalProps> & {
   ref: React.RefObject<BottomSheetModal>;
   reminderTitle?: ReminderTitleInterface;
-  onDone: (field: keyof ITask) => (value: Date) => void;
+  onDone: (field: keyof ITask) => (value: number) => void;
 };
 
 const defaultReminderTitle = reminderTitles[0];
@@ -38,7 +39,7 @@ export const Reminder = React.forwardRef<
     ref
   ) => {
     const { isDarkMode, styles } = useStyles();
-    const dateRef = useRef<Date>(reminders[0].value);
+    const dateRef = useRef<number>(reminders[0].value);
     const [reminder, setReminder] = useState(reminders[0]);
 
     const {
@@ -59,7 +60,7 @@ export const Reminder = React.forwardRef<
 
     const onDateChange = (_event: DateTimePickerEvent, date?: Date) => {
       if (date) {
-        dateRef.current = date;
+        dateRef.current = dayjs(date).valueOf();
       }
     };
 
@@ -100,8 +101,8 @@ export const Reminder = React.forwardRef<
           <BottomSheetView style={styles.wheelContainer}>
             <DateTimePicker
               display="spinner"
-              value={reminder.value}
               onChange={onDateChange}
+              value={dayjs(reminder.value).toDate()}
               mode={
                 reminderTitle.id === defaultReminderTitle.id ? "date" : "time"
               }

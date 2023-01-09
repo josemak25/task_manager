@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Button, IconButton, TextInput } from "react-native-paper";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
@@ -18,23 +19,27 @@ import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { ReminderTitleInterface } from "../../../types/types";
 import { RootTabScreenProps } from "../../../types/navigation";
 import { generateRandomColor } from "../../helpers/generateRandomColor";
+import { taskActions } from "../../providers/StoreProvider/reducers/task/reducer";
 
 const defaultTask: Partial<ITask> = {
   title: "",
   categories: [],
   description: "",
-  start_time: dayjs().toDate(),
-  end_time: dayjs().add(30, "m").toDate(),
+  start_time: dayjs().valueOf(),
+  end_time: dayjs().add(30, "m").valueOf(),
 };
 
-export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
+export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
+  route,
+}) => {
   const keyboard = useKeyboard();
+  const dispatch = useDispatch();
   const scrollRef = useRef<ScrollView>(null);
   const [category, setCategory] = useState("");
-  const [task, setTask] = useState(defaultTask);
   const { styles, edgeInsets, palette } = useStyles();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [reminderTitle, setReminderTitle] = useState(reminderTitles[0]);
+  const [task, setTask] = useState({ ...defaultTask, ...route.params?.task });
   const [errors, setErrors] = useState<Record<keyof ITask, string> | null>(
     null
   );
@@ -62,7 +67,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
 
   const handleModalDismiss = () => bottomSheetModalRef.current?.close();
 
-  const handleChange = (field: keyof ITask) => (value: string | Date) => {
+  const handleChange = (field: keyof ITask) => (value: string | number) => {
     if (errors?.[field]) {
       setErrors({ ...errors, [field]: null });
     }
@@ -82,7 +87,11 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({}) => {
       return setErrors(errors);
     }
 
-    // submit to redux store
+    if (route.params?.task) {
+      dispatch(taskActions.updateTask(task));
+    } else {
+      dispatch(taskActions.addTask(task));
+    }
 
     setTask(defaultTask);
   };

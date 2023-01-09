@@ -16,8 +16,8 @@ interface CheckboxProps {
 }
 
 export const Checkbox: React.FC<CheckboxProps> = ({ onChange, completed }) => {
-  const { styles } = useStyles();
   const scale = useSharedValue(1);
+  const { styles, palette } = useStyles();
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -39,9 +39,9 @@ export const Checkbox: React.FC<CheckboxProps> = ({ onChange, completed }) => {
       <IconButton
         size={18}
         icon="check"
-        iconColor="white"
         onPress={startAnimation}
         style={[styles.checkbox, completed && styles.checkedBox]}
+        iconColor={completed ? palette.white : palette.transparent}
       />
     </Animated.View>
   );

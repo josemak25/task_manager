@@ -1,6 +1,7 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import dayjs from "dayjs";
+import { useDispatch } from "react-redux";
 import isToday from "dayjs/plugin/isToday";
 import isYesterday from "dayjs/plugin/isYesterday";
 
@@ -8,12 +9,15 @@ import { Hr } from "../hr";
 import { Checkbox } from "../checkbox";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { ITask } from "../../providers/StoreProvider/reducers/task/interfaces";
+import { taskActions } from "../../providers/StoreProvider/reducers/task/reducer";
 
 dayjs.extend(isToday);
 dayjs.extend(isYesterday);
 
-export const Task: React.FC<ITask> = ({
+export const Task: React.FC<ITask & { onPress: VoidFunction }> = ({
+  id,
   title,
+  onPress,
   end_time,
   completed,
   categories,
@@ -21,14 +25,19 @@ export const Task: React.FC<ITask> = ({
   created_at,
   description,
 }) => {
+  const dispatch = useDispatch();
   const { styles } = useStyles();
 
   const isToday = dayjs(created_at).isToday();
   const isYesterday = dayjs(created_at).isYesterday();
   const isLongerDate = !isToday && !isYesterday;
 
+  const handleCheck = () => {
+    dispatch(taskActions.updateTask({ id, completed: !completed }));
+  };
+
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={styles.cardHeader}>
         <View>
           <Text
@@ -47,7 +56,7 @@ export const Task: React.FC<ITask> = ({
           </Text>
         </View>
 
-        <Checkbox completed={completed} onChange={() => {}} />
+        <Checkbox completed={completed} onChange={handleCheck} />
       </View>
 
       <Hr style={styles.hr} />
@@ -84,7 +93,7 @@ export const Task: React.FC<ITask> = ({
           )}
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

@@ -58,7 +58,12 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
     </View>
   );
 
-  const renderItem: ListRenderItem<ITask> = ({ item }) => <Task {...item} />;
+  const renderItem: ListRenderItem<ITask> = ({ item }) => (
+    <Task
+      {...item}
+      onPress={() => navigation.navigate("NewTask", { task: item })}
+    />
+  );
 
   return (
     <SafeAreaView style={styles.container}>

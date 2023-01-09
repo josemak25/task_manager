@@ -7,32 +7,32 @@ export const reminders: ReminderInterface[] = [
   {
     id: generateId(),
     label: "In 30 Minutes",
-    value: dayjs().add(30, "m").toDate(),
+    value: dayjs().add(30, "m").valueOf(),
   },
   {
     id: generateId(),
     label: "In an Hour",
-    value: dayjs().add(1, "h").toDate(),
+    value: dayjs().add(1, "h").valueOf(),
   },
   {
     id: generateId(),
     label: "In Two Hours",
-    value: dayjs().add(2, "h").toDate(),
+    value: dayjs().add(2, "h").valueOf(),
   },
   {
     id: generateId(),
     label: "In Three Hours",
-    value: dayjs().add(3, "h").toDate(),
+    value: dayjs().add(3, "h").valueOf(),
   },
   {
     id: generateId(),
     label: "In Four Hours",
-    value: dayjs().add(4, "h").toDate(),
+    value: dayjs().add(4, "h").valueOf(),
   },
   {
     id: generateId(),
     label: "In Five Hours",
-    value: dayjs().add(5, "h").toDate(),
+    value: dayjs().add(5, "h").valueOf(),
   },
 ];
 

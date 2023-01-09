@@ -1,14 +1,14 @@
 export interface ITask {
   id: string;
   title: string;
-  end_time: Date;
-  created_at: Date;
-  start_time: Date;
-  updated_at: Date;
+  end_time: number;
+  created_at: number;
+  start_time: number;
+  updated_at: number;
   completed: boolean;
   description: string;
-  start_date: Date | null;
   categories: ICategory[];
+  start_date: number | null;
 }
 
 export interface ICategory {

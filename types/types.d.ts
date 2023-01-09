@@ -6,7 +6,7 @@ interface BasicError {
   message: string;
 }
 
-export type ReminderInterface = { id: string; label: string; value: Date };
+export type ReminderInterface = { id: string; label: string; value: number };
 
 export type ReminderTitleInterface = {
   id: string;
