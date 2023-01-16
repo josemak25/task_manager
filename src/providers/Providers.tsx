@@ -2,6 +2,7 @@ import React, { PropsWithChildren } from "react";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 import { PaperProvider } from "./PaperProvider";
+import { ToastProvider } from "./ToastProvider";
 import { StoreProvider } from "./StoreProvider";
 import { SafeAreaProvider } from "./SafeAreaProvider";
 import { StatusBarProvider } from "./StatusBarProvider";
@@ -12,7 +13,9 @@ export const Providers: React.FC<PropsWithChildren> = ({ children }) => {
       <StoreProvider>
         <SafeAreaProvider>
           <StatusBarProvider>
-            <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+            <ToastProvider>
+              <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+            </ToastProvider>
           </StatusBarProvider>
         </SafeAreaProvider>
       </StoreProvider>

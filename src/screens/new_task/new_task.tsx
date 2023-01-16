@@ -4,6 +4,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Button, IconButton, TextInput } from "react-native-paper";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import dayjs from "dayjs";
+import Toast from "react-native-toast-message";
 
 import {
   ITask,
@@ -21,6 +22,7 @@ import { RootTabScreenProps } from "../../../types/navigation";
 import { generateRandomColor } from "../../helpers/generateRandomColor";
 import { taskActions } from "../../providers/StoreProvider/reducers/task/reducer";
 
+export const TASK_DELAY_TIME = 2000;
 const defaultTask: Partial<ITask> = {
   title: "",
   categories: [],
@@ -31,11 +33,14 @@ const defaultTask: Partial<ITask> = {
 
 export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
   route,
+  navigation,
 }) => {
   const keyboard = useKeyboard();
   const dispatch = useDispatch();
+  const isUpdate = route.params?.task;
   const scrollRef = useRef<ScrollView>(null);
   const [category, setCategory] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { styles, edgeInsets, palette } = useStyles();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [reminderTitle, setReminderTitle] = useState(reminderTitles[0]);
@@ -81,19 +86,31 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
   };
 
   const onSubmit = () => {
+    if (isLoading) return;
+
     const { hasErrors, errors } = validateTask(task);
 
     if (hasErrors) {
       return setErrors(errors);
     }
 
-    if (route.params?.task) {
-      dispatch(taskActions.updateTask(task));
-    } else {
-      dispatch(taskActions.addTask(task));
-    }
+    setIsLoading(true);
 
-    setTask(defaultTask);
+    setTimeout(() => {
+      Toast.show({
+        text1: `Task ${isUpdate ? "updated" : "created"} successfully!`,
+      });
+
+      if (isUpdate) {
+        dispatch(taskActions.updateTask(task));
+        navigation.setParams({ task: null });
+      } else {
+        dispatch(taskActions.addTask(task));
+      }
+
+      setIsLoading(false);
+      setTask(defaultTask);
+    }, TASK_DELAY_TIME);
   };
 
   return (
@@ -101,6 +118,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
       ref={scrollRef}
       bounces={false}
       style={styles.container}
+      scrollEnabled={isLoading}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={[
         styles.contentContainerStyle,
@@ -114,6 +132,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
         <TextInput
           mode="outlined"
           value={task.title}
+          disabled={isLoading}
           error={!!errors?.title}
           textColor={palette.text}
           placeholder="Dinner with Family"
@@ -129,6 +148,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
       <Text style={styles.startDateLabel}>Date</Text>
       <Button
         uppercase={false}
+        disabled={isLoading}
         mode="contained-tonal"
         labelStyle={[
           styles.dateButtonLabel,
@@ -150,6 +170,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
         <View>
           <Text style={styles.startDateLabel}>Start Time</Text>
           <TouchableOpacity
+            disabled={isLoading}
             style={styles.startButtonWrapper}
             onPress={handleModalPresent("start_time")}
           >
@@ -167,6 +188,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
         <View>
           <Text style={styles.startDateLabel}>End Time</Text>
           <TouchableOpacity
+            disabled={isLoading}
             style={styles.startButtonWrapper}
             onPress={handleModalPresent("end_time")}
           >
@@ -186,6 +208,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
       <TextInput
         multiline
         mode="outlined"
+        disabled={isLoading}
         textColor={palette.text}
         value={task.description}
         error={!!errors?.description}
@@ -207,6 +230,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
             mode="outlined"
             maxLength={26}
             value={category}
+            disabled={isLoading}
             placeholder="Website"
             textColor={palette.text}
             onChangeText={setCategory}
@@ -243,7 +267,7 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
               ]}
               style={[
                 styles.categoryButton,
-                { backgroundColor: setAlphaColor(category.color, 0.1) },
+                { backgroundColor: setAlphaColor(category.color, 0.2) },
               ]}
             >
               {category.name}
@@ -256,10 +280,12 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
         mode="contained"
         uppercase={false}
         onPress={onSubmit}
+        loading={isLoading}
         style={styles.button}
         contentStyle={{ height: "100%" }}
       >
-        Create a new task
+        {isUpdate ? "Update " : " Create a new "}
+        task
       </Button>
 
       <Reminder
