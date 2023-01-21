@@ -1,18 +1,26 @@
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import React, { useRef } from "react";
+import { Text, Animated, View, I18nManager, Alert } from "react-native";
 import dayjs from "dayjs";
 import { useDispatch } from "react-redux";
 import isToday from "dayjs/plugin/isToday";
 import isYesterday from "dayjs/plugin/isYesterday";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Swipeable, {
+  SwipeableProps,
+} from "react-native-gesture-handler/Swipeable";
+import { TouchableOpacity, RectButton } from "react-native-gesture-handler";
 
 import { Hr } from "../hr";
 import { Checkbox } from "../checkbox";
+import { useOnLayout } from "../../hooks/useOnLayout";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { ITask } from "../../providers/StoreProvider/reducers/task/interfaces";
 import { taskActions } from "../../providers/StoreProvider/reducers/task/reducer";
 
 dayjs.extend(isToday);
 dayjs.extend(isYesterday);
+
+const AnimatedIcon = Animated.createAnimatedComponent(MaterialCommunityIcons);
 
 export const Task: React.FC<ITask & { onPress: VoidFunction }> = ({
   id,
@@ -26,9 +34,10 @@ export const Task: React.FC<ITask & { onPress: VoidFunction }> = ({
   description,
 }) => {
   const dispatch = useDispatch();
-  const { styles } = useStyles();
-
+  const { styles, palette } = useStyles();
+  const [cardRef, onLayout] = useOnLayout();
   const isToday = dayjs(created_at).isToday();
+  const swipeableRef = useRef<Swipeable>(null);
   const isYesterday = dayjs(created_at).isYesterday();
   const isLongerDate = !isToday && !isYesterday;
 
@@ -36,75 +45,136 @@ export const Task: React.FC<ITask & { onPress: VoidFunction }> = ({
     dispatch(taskActions.updateTask({ id, completed: !completed }));
   };
 
+  const handleDelete = () => {
+    dispatch(taskActions.deleteTask(id));
+    swipeableRef.current?.close();
+  };
+
+  const renderLeftActions: SwipeableProps["renderLeftActions"] = (
+    _progress,
+    dragX
+  ) => {
+    const translateX = dragX.interpolate({
+      inputRange: [0, 40, 100, 102],
+      outputRange: [-40, 0, 0, 1],
+    });
+
+    return (
+      <RectButton onPress={handleDelete} style={styles.leftAction}>
+        <AnimatedIcon
+          size={30}
+          name="delete"
+          color={palette.background}
+          style={{ transform: [{ translateX }] }}
+        />
+      </RectButton>
+    );
+  };
+
+  const onSwipeableOpen = () => {
+    Alert.alert("Delete Task", title, [
+      {
+        text: "Cancel",
+        style: "cancel",
+        onPress: () => swipeableRef.current?.close(),
+      },
+      { text: "OK", onPress: handleDelete },
+    ]);
+  };
+
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
-      <View style={styles.cardHeader}>
-        <View>
-          <Text
-            numberOfLines={1}
-            style={[
-              styles.title,
-              completed && {
-                textDecorationLine: "line-through",
-              },
-            ]}
-          >
-            {title}
-          </Text>
-          <Text style={styles.subtitle} numberOfLines={1}>
-            {description}
-          </Text>
-        </View>
-
-        <Checkbox completed={completed} onChange={handleCheck} />
-      </View>
-
-      <Hr style={styles.hr} />
-
-      <View style={styles.timeContainer}>
-        <View style={styles.time}>
-          {isToday && <Text style={styles.day}>Today</Text>}
-          {isYesterday && <Text style={styles.day}>Yesterday</Text>}
-          {isLongerDate && (
-            <Text style={styles.day}>{dayjs().format("DD MMM YYYY")}</Text>
-          )}
-
-          <Text style={styles.timer}>
-            {dayjs(start_time).format("hh:mm A")}
-            {dayjs(end_time).format(" - hh:mm A")}
-          </Text>
-        </View>
-
-        <View style={styles.categoriesContainer}>
-          {categories.slice(0, 2).map(({ color, id }, index) => (
-            <View
-              key={id}
+    <Swipeable
+      friction={2}
+      ref={swipeableRef}
+      leftThreshold={80}
+      onSwipeableOpen={onSwipeableOpen}
+      renderLeftActions={renderLeftActions}
+      childrenContainerStyle={styles.childrenContainerStyle}
+      containerStyle={[
+        styles.containerStyle,
+        { height: cardRef.current?.height },
+      ]}
+    >
+      <TouchableOpacity
+        onPress={onPress}
+        onLayout={onLayout}
+        style={styles.container}
+      >
+        <View style={styles.cardHeader}>
+          <View>
+            <Text
+              numberOfLines={1}
               style={[
-                styles.category,
-                { right: ++index * 20, backgroundColor: color, zIndex: -index },
+                styles.title,
+                completed && {
+                  textDecorationLine: "line-through",
+                },
               ]}
-            />
-          ))}
+            >
+              {title}
+            </Text>
+            <Text style={styles.subtitle} numberOfLines={1}>
+              {description}
+            </Text>
+          </View>
 
-          {categories.length > 2 && (
-            <View style={[styles.category, { right: 0 * 20 }]}>
-              <Text style={styles.badge}>{`+${categories.length - 2}`}</Text>
-            </View>
-          )}
+          <Checkbox completed={completed} onChange={handleCheck} />
         </View>
-      </View>
-    </TouchableOpacity>
+
+        <Hr style={styles.hr} />
+
+        <View style={styles.timeContainer}>
+          <View style={styles.time}>
+            {isToday && <Text style={styles.day}>Today</Text>}
+            {isYesterday && <Text style={styles.day}>Yesterday</Text>}
+            {isLongerDate && (
+              <Text style={styles.day}>{dayjs().format("DD MMM YYYY")}</Text>
+            )}
+
+            <Text style={styles.timer}>
+              {dayjs(start_time).format("hh:mm A")}
+              {dayjs(end_time).format(" - hh:mm A")}
+            </Text>
+          </View>
+
+          <View style={styles.categoriesContainer}>
+            {categories.slice(0, 2).map(({ color, id }, index) => (
+              <View
+                key={id}
+                style={[
+                  styles.category,
+                  {
+                    zIndex: -index,
+                    backgroundColor: color,
+                    right:
+                      categories.length > 2
+                        ? ++index * 20
+                        : categories.length === 2
+                        ? index * 20
+                        : 0,
+                  },
+                ]}
+              />
+            ))}
+
+            {categories.length > 2 && (
+              <View style={[styles.category, { right: 0 * 20 }]}>
+                <Text style={styles.badge}>{`+${categories.length - 2}`}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Swipeable>
   );
 };
 
 const useStyles = makeUseStyles(({ fonts, isDarkMode, layout, palette }) => ({
   container: {
     borderRadius: layout.gutter,
-    marginBottom: layout.gutter * 2,
+    shadowColor: "rgba(0,0,0,0.4)",
     paddingVertical: layout.gutter * 2,
     paddingHorizontal: layout.gutter * 1.5,
-    backgroundColor: isDarkMode ? palette.input : palette.background,
-    shadowColor: "rgba(0,0,0,0.4)",
     shadowOffset: {
       width: 8,
       height: 10,
@@ -176,5 +246,21 @@ const useStyles = makeUseStyles(({ fonts, isDarkMode, layout, palette }) => ({
   badge: {
     color: palette.white,
     fontSize: fonts.size.default - 3,
+  },
+  containerStyle: {
+    borderRadius: layout.gutter,
+    backgroundColor: palette.delete,
+    marginBottom: layout.gutter * 2,
+  },
+  childrenContainerStyle: {
+    borderRadius: layout.gutter,
+    backgroundColor: isDarkMode ? palette.input : palette.background,
+  },
+  leftAction: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingHorizontal: layout.gutter * 1.5,
+    flexDirection: I18nManager.isRTL ? "row" : "row-reverse",
   },
 }));

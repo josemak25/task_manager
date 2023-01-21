@@ -1,13 +1,14 @@
 import React, { Fragment, useState } from "react";
-import { Button, Badge } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
+import { FlatList } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Button, Badge, AnimatedFAB } from "react-native-paper";
 import {
   View,
   Text,
-  FlatList,
-  TouchableOpacity,
+  FlatListProps,
   ListRenderItem,
+  TouchableOpacity,
 } from "react-native";
 import dayjs from "dayjs";
 
@@ -22,7 +23,9 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
 }) => {
   const [tab, setTab] = useState("all");
   const { styles, palette } = useStyles();
+  const [isExtended, setIsExtended] = useState(false);
   const { data } = useSelector(({ task }: RootState) => task);
+  const [isHeaderButtonVisible, setIsHeaderButtonVisible] = useState(false);
 
   const tabs = [
     { label: "all", badge: data.length },
@@ -32,6 +35,27 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
       badge: data.filter(({ completed }) => completed).length,
     },
   ];
+
+  const handleFAB = () => {
+    if (!isExtended) {
+      return setIsExtended(!isExtended);
+    }
+
+    navigation.navigate("NewTask");
+  };
+
+  const onScroll: FlatListProps<ITask>["onScroll"] = ({ nativeEvent }) => {
+    const currentScrollPosition = Math.floor(nativeEvent.contentOffset.y);
+
+    if (!isHeaderButtonVisible && currentScrollPosition <= 10) {
+      setIsHeaderButtonVisible(true);
+      setIsExtended(false);
+    }
+
+    if (isHeaderButtonVisible && currentScrollPosition >= 150) {
+      setIsHeaderButtonVisible(false);
+    }
+  };
 
   const ListHeaderComponent = (
     <View style={styles.listContainer}>
@@ -73,25 +97,42 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
           <Text style={styles.subtitle}>{dayjs().format("dddd, DD MMMM")}</Text>
         </View>
 
-        <Button
-          icon="plus"
-          uppercase={false}
-          mode="contained-tonal"
-          style={styles.button}
-          textColor={palette.primary}
-          contentStyle={{ height: "100%" }}
-          onPress={() => navigation.navigate("NewTask")}
-        >
-          New Task
-        </Button>
+        {isHeaderButtonVisible && (
+          <Button
+            icon="plus"
+            uppercase={false}
+            mode="contained-tonal"
+            style={styles.button}
+            textColor={palette.primary}
+            contentStyle={{ height: "100%" }}
+            onPress={() => navigation.navigate("NewTask")}
+          >
+            New Task
+          </Button>
+        )}
       </View>
 
       <FlatList
         data={data}
+        onScroll={onScroll}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={ListHeaderComponent}
+        keyExtractor={({ id }, index) => `${id}__${index}`}
         contentContainerStyle={styles.contentContainerStyle}
+      />
+
+      <AnimatedFAB
+        icon="plus"
+        color="white"
+        label="New Task"
+        uppercase={false}
+        iconMode="dynamic"
+        animateFrom="left"
+        onPress={handleFAB}
+        extended={isExtended}
+        style={styles.fabStyle}
+        visible={!isHeaderButtonVisible}
       />
     </SafeAreaView>
   );
@@ -170,6 +211,12 @@ const useStyles = makeUseStyles(
       borderRadius: 2,
       marginRight: layout.gutter * 2,
       backgroundColor: palette.hairlineColor,
+    },
+    fabStyle: {
+      position: "absolute",
+      right: layout.gutter,
+      backgroundColor: palette.primary,
+      bottom: edgeInsets.bottom + layout.gutter * 2,
     },
   })
 );
