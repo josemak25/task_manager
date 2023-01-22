@@ -118,7 +118,6 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={ListHeaderComponent}
-        keyExtractor={({ id }, index) => `${id}__${index}`}
         contentContainerStyle={styles.contentContainerStyle}
       />
 

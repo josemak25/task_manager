@@ -1,14 +1,13 @@
 import React, { useRef } from "react";
 import { Text, Animated, View, I18nManager, Alert } from "react-native";
 import dayjs from "dayjs";
+import * as Haptics from "expo-haptics";
 import { useDispatch } from "react-redux";
 import isToday from "dayjs/plugin/isToday";
 import isYesterday from "dayjs/plugin/isYesterday";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Swipeable, {
-  SwipeableProps,
-} from "react-native-gesture-handler/Swipeable";
-import { TouchableOpacity, RectButton } from "react-native-gesture-handler";
+import Swipeable from "react-native-gesture-handler/Swipeable";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { Hr } from "../hr";
 import { Checkbox } from "../checkbox";
@@ -50,24 +49,26 @@ export const Task: React.FC<ITask & { onPress: VoidFunction }> = ({
     swipeableRef.current?.close();
   };
 
-  const renderLeftActions: SwipeableProps["renderLeftActions"] = (
-    _progress,
-    dragX
+  const renderRightActions = (
+    _progress: Animated.AnimatedInterpolation<number>,
+    dragX: Animated.AnimatedInterpolation<number>
   ) => {
     const translateX = dragX.interpolate({
-      inputRange: [0, 40, 100, 102],
-      outputRange: [-40, 0, 0, 1],
+      inputRange: [0, 40, 100],
+      outputRange: [-3, 0, 1],
     });
 
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
     return (
-      <RectButton onPress={handleDelete} style={styles.leftAction}>
+      <View style={styles.rightAction}>
         <AnimatedIcon
           size={30}
           name="delete"
           color={palette.background}
           style={{ transform: [{ translateX }] }}
         />
-      </RectButton>
+      </View>
     );
   };
 
@@ -86,9 +87,9 @@ export const Task: React.FC<ITask & { onPress: VoidFunction }> = ({
     <Swipeable
       friction={2}
       ref={swipeableRef}
-      leftThreshold={80}
+      rightThreshold={80}
       onSwipeableOpen={onSwipeableOpen}
-      renderLeftActions={renderLeftActions}
+      renderRightActions={renderRightActions}
       childrenContainerStyle={styles.childrenContainerStyle}
       containerStyle={[
         styles.containerStyle,
@@ -256,8 +257,8 @@ const useStyles = makeUseStyles(({ fonts, isDarkMode, layout, palette }) => ({
     borderRadius: layout.gutter,
     backgroundColor: isDarkMode ? palette.input : palette.background,
   },
-  leftAction: {
-    flex: 1,
+  rightAction: {
+    flex: 0,
     alignItems: "center",
     justifyContent: "flex-end",
     paddingHorizontal: layout.gutter * 1.5,
