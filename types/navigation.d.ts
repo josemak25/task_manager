@@ -4,7 +4,7 @@ import { ITask } from "../src/providers/StoreProvider/reducers/task/interfaces";
 export type StackParamList = {
   Home: undefined;
   Onboarding: undefined;
-  NewTask: { task?: ITask | null } | undefined;
+  Task: { task?: ITask | null } | undefined;
 };
 
 export type RootTabScreenProps<Screen extends keyof StackParamList> =

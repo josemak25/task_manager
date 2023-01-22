@@ -41,7 +41,7 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
       return setIsExtended(!isExtended);
     }
 
-    navigation.navigate("NewTask");
+    navigation.navigate("Task");
   };
 
   const onScroll: FlatListProps<ITask>["onScroll"] = ({ nativeEvent }) => {
@@ -85,7 +85,7 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
   const renderItem: ListRenderItem<ITask> = ({ item }) => (
     <Task
       {...item}
-      onPress={() => navigation.navigate("NewTask", { task: item })}
+      onPress={() => navigation.navigate("Task", { task: item })}
     />
   );
 
@@ -105,7 +105,7 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
             style={styles.button}
             textColor={palette.primary}
             contentStyle={{ height: "100%" }}
-            onPress={() => navigation.navigate("NewTask")}
+            onPress={() => navigation.navigate("Task")}
           >
             New Task
           </Button>

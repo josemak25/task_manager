@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Button, IconButton, TextInput } from "react-native-paper";
@@ -31,7 +31,7 @@ const defaultTask: Partial<ITask> = {
   end_time: dayjs().add(30, "m").valueOf(),
 };
 
-export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
+export const TaskScreen: React.FC<RootTabScreenProps<"Task">> = ({
   route,
   navigation,
 }) => {
@@ -48,6 +48,12 @@ export const NewTaskScreen: React.FC<RootTabScreenProps<"NewTask">> = ({
   const [errors, setErrors] = useState<Record<keyof ITask, string> | null>(
     null
   );
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: isUpdate ? "Edit Task" : "New Task",
+    });
+  }, [navigation, isUpdate, route]);
 
   const handleCategory = (name: string) => {
     const categoryName = name.trim();

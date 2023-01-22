@@ -7,7 +7,7 @@ import {
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { HomeScreen } from "../screens/home";
-import { NewTaskScreen } from "../screens/new_task";
+import { TaskScreen } from "../screens/task";
 import { useIsDarkMode } from "../hooks/useIsDarkMode";
 import { usePrepareApp } from "../hooks/usePrepareApp";
 import { StackParamList } from "../../types/navigation";
@@ -36,11 +36,10 @@ export const Navigation = () => {
       >
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen
-          name="NewTask"
-          component={NewTaskScreen}
+          name="Task"
+          component={TaskScreen}
           options={{
             headerShown: true,
-            title: "New Task",
             headerTitleAlign: "center",
             headerTintColor: palette.text,
             headerBackTitleVisible: false,
