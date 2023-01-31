@@ -1,17 +1,12 @@
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
+import dayjs from "dayjs";
 import { useSelector } from "react-redux";
 import { FlatList } from "react-native-gesture-handler";
+import { Button, AnimatedFAB } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, Badge, AnimatedFAB } from "react-native-paper";
-import {
-  View,
-  Text,
-  FlatListProps,
-  ListRenderItem,
-  TouchableOpacity,
-} from "react-native";
-import dayjs from "dayjs";
+import { View, Text, FlatListProps, ListRenderItem } from "react-native";
 
+import { Tab } from "../../component/tab";
 import { Task } from "../../component/task";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { RootTabScreenProps } from "../../../types/navigation";
@@ -21,20 +16,10 @@ import { ITask } from "../../providers/StoreProvider/reducers/task/interfaces";
 export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
   navigation,
 }) => {
-  const [tab, setTab] = useState("all");
   const { styles, palette } = useStyles();
   const [isExtended, setIsExtended] = useState(false);
   const { data } = useSelector(({ task }: RootState) => task);
-  const [isHeaderButtonVisible, setIsHeaderButtonVisible] = useState(false);
-
-  const tabs = [
-    { label: "all", badge: data.length },
-    { label: "open", badge: data.filter(({ completed }) => !completed).length },
-    {
-      label: "closed",
-      badge: data.filter(({ completed }) => completed).length,
-    },
-  ];
+  const [isHeaderButtonVisible, setIsHeaderButtonVisible] = useState(true);
 
   const handleFAB = () => {
     if (!isExtended) {
@@ -52,42 +37,24 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
       setIsExtended(false);
     }
 
-    if (isHeaderButtonVisible && currentScrollPosition >= 150) {
+    if (
+      !!data.length &&
+      isHeaderButtonVisible &&
+      currentScrollPosition >= 150
+    ) {
       setIsHeaderButtonVisible(false);
+    }
+
+    if (!isExtended && currentScrollPosition >= 1000) {
+      setIsExtended(true);
+    } else if (isExtended && currentScrollPosition <= 1000) {
+      setIsExtended(false);
     }
   };
 
-  const ListHeaderComponent = (
-    <View style={styles.listContainer}>
-      {tabs.map(({ badge, label }, index) => (
-        <Fragment key={label}>
-          <TouchableOpacity style={styles.list} onPress={() => setTab(label)}>
-            <Text
-              style={[
-                styles.listItem,
-                tab === label && styles.selectedListItem,
-              ]}
-            >
-              {label}
-            </Text>
-            <Badge
-              style={[styles.badge, tab === label && styles.selectedBadge]}
-            >
-              {badge}
-            </Badge>
-          </TouchableOpacity>
-          {!index && <View style={styles.vertical} />}
-        </Fragment>
-      ))}
-    </View>
-  );
+  const ListHeaderComponent = <Tab tasks={data} />;
 
-  const renderItem: ListRenderItem<ITask> = ({ item }) => (
-    <Task
-      {...item}
-      onPress={() => navigation.navigate("Task", { task: item })}
-    />
-  );
+  const renderItem: ListRenderItem<ITask> = ({ item }) => <Task {...item} />;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,7 +94,7 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
         label="New Task"
         uppercase={false}
         iconMode="dynamic"
-        animateFrom="left"
+        animateFrom="right"
         onPress={handleFAB}
         extended={isExtended}
         style={styles.fabStyle}
@@ -170,39 +137,6 @@ const useStyles = makeUseStyles(
       height: 40,
       borderRadius: layout.gutter / 1.5,
       backgroundColor: palette.primaryLight,
-    },
-    listContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      marginTop: layout.gutter,
-      marginBottom: layout.gutter * 2.5,
-    },
-    list: {
-      alignItems: "center",
-      flexDirection: "row",
-      justifyContent: "center",
-      paddingRight: layout.gutter * 2,
-      paddingVertical: layout.gutter / 2,
-    },
-    listItem: {
-      color: palette.text,
-      fontSize: fonts.size.md,
-      textTransform: "capitalize",
-      fontWeight: fonts.weight.semi,
-      opacity: isDarkMode ? 0.4 : 0.3,
-    },
-    selectedListItem: {
-      opacity: 1,
-      color: palette.primary,
-      fontWeight: fonts.weight.bold,
-    },
-    badge: {
-      color: palette.white,
-      marginLeft: layout.gutter / 2,
-      backgroundColor: palette.hairlineColor,
-    },
-    selectedBadge: {
-      backgroundColor: palette.primary,
     },
     vertical: {
       width: 2,

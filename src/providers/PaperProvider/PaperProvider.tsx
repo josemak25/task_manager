@@ -1,5 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import { configureFonts, MD2LightTheme, Provider } from "react-native-paper";
+import { ThemeProp } from "react-native-paper/lib/typescript/types";
 
 import fonts from "../../constants/fonts";
 
@@ -34,7 +35,7 @@ const fontConfig = {
   },
 };
 
-const theme = {
+const theme: ThemeProp = {
   ...MD2LightTheme,
   fonts: configureFonts({
     //@ts-ignore

@@ -17,6 +17,7 @@ export default {
     checked: "#44cc11",
     listBackground: "#f2f4f5",
     dateBackground: "#E9E9EA",
+    editColor: "#C8C7CD",
   },
   dark: {
     text: "#fff",
@@ -36,5 +37,6 @@ export default {
     checked: "#44cc11",
     listBackground: "#f2f4f5",
     dateBackground: "#545c62",
+    editColor: "#C8C7CD",
   },
 };

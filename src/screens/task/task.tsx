@@ -233,8 +233,8 @@ export const TaskScreen: React.FC<RootTabScreenProps<"Task">> = ({
         <Text style={styles.startDateLabel}>Category</Text>
         <View style={styles.addCategoryContainer}>
           <TextInput
-            mode="outlined"
             maxLength={26}
+            mode="outlined"
             value={category}
             disabled={isLoading}
             placeholder="Website"

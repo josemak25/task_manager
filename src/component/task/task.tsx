@@ -1,78 +1,66 @@
 import React, { useRef } from "react";
-import { Text, Animated, View, I18nManager, Alert } from "react-native";
 import dayjs from "dayjs";
 import * as Haptics from "expo-haptics";
 import { useDispatch } from "react-redux";
 import isToday from "dayjs/plugin/isToday";
 import isYesterday from "dayjs/plugin/isYesterday";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import Swipeable from "react-native-gesture-handler/Swipeable";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { Text, View, Alert, Animated, I18nManager } from "react-native";
 
 import { Hr } from "../hr";
+import { Action } from "../action";
 import { Checkbox } from "../checkbox";
 import { useOnLayout } from "../../hooks/useOnLayout";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
+import { StackNavigationProps } from "../../../types/navigation";
 import { ITask } from "../../providers/StoreProvider/reducers/task/interfaces";
 import { taskActions } from "../../providers/StoreProvider/reducers/task/reducer";
 
 dayjs.extend(isToday);
 dayjs.extend(isYesterday);
 
-const AnimatedIcon = Animated.createAnimatedComponent(MaterialCommunityIcons);
+export const Task: React.FC<ITask> = (task) => {
+  const {
+    id,
+    title,
+    end_time,
+    completed,
+    categories,
+    start_time,
+    created_at,
+    description,
+  } = task;
 
-export const Task: React.FC<ITask & { onPress: VoidFunction }> = ({
-  id,
-  title,
-  onPress,
-  end_time,
-  completed,
-  categories,
-  start_time,
-  created_at,
-  description,
-}) => {
   const dispatch = useDispatch();
   const { styles, palette } = useStyles();
   const [cardRef, onLayout] = useOnLayout();
   const isToday = dayjs(created_at).isToday();
   const swipeableRef = useRef<Swipeable>(null);
   const isYesterday = dayjs(created_at).isYesterday();
+  const navigation = useNavigation<StackNavigationProps>();
   const isLongerDate = !isToday && !isYesterday;
 
   const handleCheck = () => {
     dispatch(taskActions.updateTask({ id, completed: !completed }));
   };
 
+  const handleHaptics = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
   const handleDelete = () => {
     dispatch(taskActions.deleteTask(id));
     swipeableRef.current?.close();
+    handleHaptics();
   };
 
-  const renderRightActions = (
-    _progress: Animated.AnimatedInterpolation<number>,
-    dragX: Animated.AnimatedInterpolation<number>
-  ) => {
-    const translateX = dragX.interpolate({
-      inputRange: [0, 40, 100],
-      outputRange: [-3, 0, 1],
-    });
-
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    return (
-      <View style={styles.rightAction}>
-        <AnimatedIcon
-          size={30}
-          name="delete"
-          color={palette.background}
-          style={{ transform: [{ translateX }] }}
-        />
-      </View>
-    );
+  const handleEdit = () => {
+    navigation.navigate("Task", { task });
+    swipeableRef.current?.close();
   };
 
-  const onSwipeableOpen = () => {
+  const onDelete = () => {
     Alert.alert("Delete Task", title, [
       {
         text: "Cancel",
@@ -83,12 +71,37 @@ export const Task: React.FC<ITask & { onPress: VoidFunction }> = ({
     ]);
   };
 
+  const renderRightActions = (
+    progress: Animated.AnimatedInterpolation<number>,
+    _dragX: Animated.AnimatedInterpolation<number>
+  ) => {
+    return (
+      <View style={styles.rightAction}>
+        <Action
+          x={79}
+          icon="note-edit"
+          progress={progress}
+          onPress={handleEdit}
+          color={palette.editColor}
+        />
+        <Action
+          x={158}
+          icon="delete"
+          onPress={onDelete}
+          progress={progress}
+          color={palette.delete}
+        />
+      </View>
+    );
+  };
+
   return (
     <Swipeable
       friction={2}
       ref={swipeableRef}
-      rightThreshold={80}
-      onSwipeableOpen={onSwipeableOpen}
+      rightThreshold={40}
+      onSwipeableWillOpen={handleHaptics}
+      onSwipeableWillClose={handleHaptics}
       renderRightActions={renderRightActions}
       childrenContainerStyle={styles.childrenContainerStyle}
       containerStyle={[
@@ -96,11 +109,7 @@ export const Task: React.FC<ITask & { onPress: VoidFunction }> = ({
         { height: cardRef.current?.height },
       ]}
     >
-      <TouchableOpacity
-        onPress={onPress}
-        onLayout={onLayout}
-        style={styles.container}
-      >
+      <View onLayout={onLayout} style={styles.container}>
         <View style={styles.cardHeader}>
           <View>
             <Text
@@ -165,7 +174,7 @@ export const Task: React.FC<ITask & { onPress: VoidFunction }> = ({
             )}
           </View>
         </View>
-      </TouchableOpacity>
+      </View>
     </Swipeable>
   );
 };
@@ -250,7 +259,6 @@ const useStyles = makeUseStyles(({ fonts, isDarkMode, layout, palette }) => ({
   },
   containerStyle: {
     borderRadius: layout.gutter,
-    backgroundColor: palette.delete,
     marginBottom: layout.gutter * 2,
   },
   childrenContainerStyle: {
@@ -258,10 +266,7 @@ const useStyles = makeUseStyles(({ fonts, isDarkMode, layout, palette }) => ({
     backgroundColor: isDarkMode ? palette.input : palette.background,
   },
   rightAction: {
-    flex: 0,
-    alignItems: "center",
-    justifyContent: "flex-end",
-    paddingHorizontal: layout.gutter * 1.5,
+    width: 158,
     flexDirection: I18nManager.isRTL ? "row" : "row-reverse",
   },
 }));
